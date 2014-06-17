@@ -1,7 +1,7 @@
 <html>
 	<head>
 		<meta charset="utf-8" />
-     	<title>WebGL stuff</title>
+     	<title>D3 stuff</title>
 		<link rel="stylesheet" href="css/cyril.css" />
 		<script type="text/javascript" src="js/d3.v3.js"></script>
 		<script type="text/javascript">
@@ -23,9 +23,11 @@
 	</svg>
 	
 	<script type="text/javascript">
-	d3.select("body").append("h2").text("Displaying data using basic numbers (with colors)");
+	d3.select("body").append("h2").text("Displaying data using basic numbers");
 	
 	var dataset = [ 5, 10, 15, 20, 25, 2, 3, 9, 7 ];
+	var max = d3.max(dataset, function(d) { return d; });
+
 	d3.select("body")
 	.append("div")
 	.attr("id", "p stuff")
@@ -38,7 +40,9 @@
 	.style("color", function(value){
 		if(value > 15) {return "red"; }
 		else{ return "black";}
-	});
+	})
+	.style("font-size", function(value) { 
+		return (value/max*(24-12) +12) + "px"; });
 	
 	d3.select("body").append("h2").text("Now some teal bars with divs");
 	
@@ -57,6 +61,7 @@
 	
 	var width = 300;
 	var height = 200;
+	var barPadding = 2;
 	
 	//Draw some bars in svg
 	var svg = d3.select("body")
@@ -70,12 +75,33 @@
 		.append("rect")
 		.attr("x", function(value, index){
 			return (index*width/dataset.length);})
-		.attr("y", function(d){ return height-d*4;})
-		.attr("width", 20)
+		.attr("y", function(d){ return height;})
+		.attr("width", width/dataset.length-barPadding)
 		.attr("height", 100)
 		.attr("fill", function(d) {
 			return "rgb(0, 0, " + (d * 10) + ")";
-		});
+		})
+		.transition()
+			.duration(2000)
+			.attr("x", function(value, index){
+				return (index*width/dataset.length);})
+			.attr("y", function(d){ return height-d*4;})
+			.attr("width", width/dataset.length-barPadding)
+			.attr("height", 100)
+			.attr("fill", function(d) {
+				return "rgb(0, 0, " + (d * 10) + ")";
+			})
+		.transition()
+			.delay(2000)
+			.duration(2000)
+			.attr("x", function(value, index){
+				return (index*width/dataset.length);})
+			.attr("y", function(d){ return height-d*4;})
+			.attr("width", width/dataset.length-barPadding)
+			.attr("height", 100)
+			.attr("fill", function(d) {
+				return "rgb(0, 0, " + (d * 10) + ")";
+			});
 	
 	var offsetY = -20;
 	var offsetX = 3;
@@ -102,8 +128,8 @@
 		.style("font-style", "italic");
 	//Scatterplot
 	var dataset = [
-                [5, 20], [480, 90], [250, 50], [100, 33], [330, 95],
-                [410, 12], [475, 44], [25, 67], [85, 21], [220, 88]
+                [5, 20], [480, 90], [250, 50.9], [100, 33], [330, 95],
+                [410, 12.3], [475, 44.6], [25, 67], [85, 21], [220, 88]
               ];
 	var w= 600;
 	var h= 200;
@@ -125,6 +151,20 @@
 		.attr("r", function(d){
 			return Math.sqrt(Math.pow(d[0],2) + Math.pow(d[1],2));
 		});
+	svg2.selectAll("text")
+		.data(dataset)
+		.enter()
+		.append("text")
+		.text(function(d) { return d[0] + ", " + d[1];})
+		.attr("x", function(d) {
+			return d[0] + 5;
+		})
+		.attr("y", function(d) {
+			return d[1];
+		})
+		.attr("font-family", "sans-serif")
+		.attr("font-size", "11px")
+		.attr("fill", "red");
 		
 	//Scaling	
 	var padding = 20;
@@ -140,6 +180,8 @@
 		.nice();
 	
 	svg2.selectAll("circle")
+		.transition()
+		.duration(2000)
 		.attr("cx", function(d) {
 			return xScale(d[0]);
 		})
@@ -155,6 +197,14 @@
 		.attr("r", function(d) {
 			return rScale(Math.sqrt(Math.pow(d[0],2) + Math.pow(d[1],2)));
 		})
+		
+	svg2.selectAll("text")
+		.attr("x", function(d) {
+			return xScale(d[0]) + 7;
+		})
+		.attr("y", function(d) {
+			return yScale(d[1]);
+		})
 	
 	//Axis
 	svg2.append("g")
@@ -164,6 +214,15 @@
                   .scale(xScale)
                   .orient("bottom")
 				  .ticks(5)
+		);
+	svg2.append("g")
+		.attr("class", "axis")
+		.attr("transform", "translate(" + padding + ",0)")
+		.call(d3.svg.axis()
+                  .scale(yScale)
+                  .orient("left")
+				  .tickFormat(d3.format(".1"))
+                  .ticks(5)
 		);
 	</script>
 	</body>
