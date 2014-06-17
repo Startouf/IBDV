@@ -1,0 +1,128 @@
+/* Font declaration */
+
+@font-face {
+	font-family: 'Museo_SLab_300';
+    src: url('Resources/Museo_Slab_300.otf');
+	}
+	
+    font-family: 'Museo_SLab_500';
+    src: url('Resources/Museo_Slab_500.otf');
+	}
+
+	@font-face {
+    font-family: 'Museo_SLab_700';
+    src: url('Resources/Museo_Slab_700.otf');
+	}
+
+	@font-face {
+    font-family: 'Century Gothic, 'Century Gothic'';
+    src: url('Resources/CenturyGothic.otf');
+	}
+
+/* Body */
+
+body {
+	font-family: Museo_SLab_300;
+	font-size: 20px;
+	color: #999999;
+	background: url(Resources/bg.jpg) repeat; 
+	background-position: top-left;
+	width: 100%;
+	margin: 0%;
+	text-align: center;
+	}
+	
+/* Bouton */
+
+.bouton {
+	background-color: #ECD078; 
+	border: 0px; 
+	Font-family: 'Century Gothic'; 
+	Font-weight: bold;
+	Font-size: 20px; 
+	Color: #FFFFFF; 
+	Padding: 10px;   
+	Border-radius: 10px;
+}
+
+.bouton:hover {
+	background-color: #C02942; 
+	border: 0px; 
+	Font-family: 'Century Gothic'; 
+	Font-weight: bold;
+	Font-size: 20px; 
+	Color: #FFFFFF; 
+	Padding: 10px;   
+	Border-radius: 10px;
+}
+	
+/* Invisibilité */
+
+.invisible {
+	display: none;
+	}	
+	
+/* Titles */
+
+h3 {
+	font-family: Museo_SLab_500;
+	font-size: 50px;
+	color: #123123;
+	}
+
+/* Bar Chart */
+
+.bar1 {
+    display: inline-block;
+    width: 20px;
+    height: 75px;  
+    background-color: #ECD078;
+    margin-right: 2px;
+}
+
+.bar2 {
+  	display: inline-block;
+    width: 20px;
+    height: 75px;  
+    background-color: #D95B43;
+    margin-right: 2px;	
+}
+
+.bar3 {
+  	display: inline-block;
+    width: 20px;
+    height: 75px;  
+    background-color: #C02942;
+    margin-right: 2px;	
+}
+
+.bar4 {
+  	display: inline-block;
+    width: 20px;
+    height: 75px;  
+    background-color: #542437;
+    margin-right: 2px;	
+}
+
+.bar5 {
+  	display: inline-block;
+    width: 20px;
+    height: 75px;  
+    background-color: #53777A;
+    margin-right: 2px;	
+}
+
+/* Axis */
+
+.axis path {
+    fill: none;
+    stroke: black;
+    shape-rendering: crispEdges;
+}
+
+.axis text {
+    font-family: 'Century Gothic';
+    font-size: 10px;
+}
+
+/* end */
