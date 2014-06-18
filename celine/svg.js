@@ -57,13 +57,16 @@ function showSvg() {
 						
 				d3.select("body")
 					.append("p")
+					.attr("align","center")
 					.style("Font-family","'Museo_SLab_300'")
 					.style("Font-size","60px")
 					.style("color","#ECD078")
 					.text("Barcharts with SVG");
 				
 				var svgBar = d3.select("body")
-		            .append("svg")
+					.append("div")
+			    	.attr("align","center")
+			        .append("svg")
 		            .attr("width", wBar)
 		            .attr("height", hBar);
 
@@ -119,12 +122,15 @@ function showSvg() {
    				
 				d3.select("body")
 					.append("p")
+					.attr("align","center")
 					.style("Font-family","'Museo_SLab_300'")
 					.style("Font-size","60px")
 					.style("color","#ECD078")
 					.text("Circles with SVG");
 		
 				var svgCircles = d3.select("body")
+					.append("div")
+			    	.attr("align","center")
 					.append("svg")
 					.attr("height",hCircles);
 				
@@ -168,12 +174,15 @@ function showSvg() {
 						
 				d3.select("body")
 					.append("p")
+					.attr("align","center")
 					.style("Font-family","'Museo_SLab_300'")
 					.style("Font-size","60px")
 					.style("color","#ECD078")
 					.text("Scatterplot with SVG");
 				
 				var svgScatter = d3.select("body")
+		            .append("div")
+			    	.attr("align","center")
 		            .append("svg")
 		            .attr("width", wScatter)
 		            .attr("height", hScatter);

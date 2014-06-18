@@ -9,12 +9,15 @@ function showBars() {
 					}
 					
 				d3.select("body").append("p")
+					.attr("align","center")
 					.style("Font-family","'Museo_SLab_300'")
 					.style("Font-size","60px")
 					.style("color","#ECD078")
 					.text("Bar Chart Test 1");
 		
-					d3.select("body").selectAll("div")
+				d3.select("body").append("p")
+					.attr("align","center")
+					.selectAll("div")
 					    .data(dataset1)
 					    .enter()
 					    .append("div")
@@ -29,15 +32,18 @@ function showBars() {
 					    })
 					    .style("height", function(d) {
 						    return d*5 + "px";   
-						})
+						});
 					
-					d3.select("body").append("p")
-						.style("Font-family","'Museo_SLab_300'")
-						.style("Font-size","60px")
-						.style("color","#ECD078")
-						.text("Bar Chart Test 2");
-						
-					d3.select("body").selectAll("div")
+				d3.select("body").append("p")
+					.attr("align","center")
+					.style("Font-family","'Museo_SLab_300'")
+					.style("Font-size","60px")
+					.style("color","#ECD078")
+					.text("Bar Chart Test 2");
+					
+				d3.select("body").append("p")
+					.attr("align","center")
+					.selectAll("div")
 					    .data(dataset2)
 					    .enter()
 					    .append("div")
@@ -45,14 +51,17 @@ function showBars() {
 					    .style("height", function(d) {
 						    return d*5 + "px";   
 						});
-						
-					d3.select("body").append("p")
-						.style("Font-family","'Museo_SLab_300'")
-						.style("Font-size","60px")
-						.style("color","#ECD078")
-						.text("Bar Chart Test Random");
-						
-					d3.select("body").selectAll("div")
+					
+				d3.select("body").append("p")
+					.attr("align","center")
+					.style("Font-family","'Museo_SLab_300'")
+					.style("Font-size","60px")
+					.style("color","#ECD078")
+					.text("Bar Chart Test Random");
+					
+				d3.select("body").append("p")
+					.attr("align","center")	
+					.selectAll("div")
 					    .data(dataset3)
 					    .enter()
 					    .append("div")
@@ -62,22 +71,11 @@ function showBars() {
 						});	
 };
 
-function changeButton() {
-		document.getElementsByTagName('button')[0]
-				.textContent="HIDE!";
-		document.getElementsByTagName('button')[0]
-				.setAttribute("onclick","hide()");
-	}
-	
-function hide() {
-		d3.select("body").selectAll("div")
-			.style.display = 'none';
-		d3.select("body").selectAll("div")
-			.attr("class","invisible");
-		d3.select("body").selectAll("p")
-			.attr("class","invisible");	
-	}
+function hideButton() {
+	document.getElementsByTagName('button')[0].style.display = 'none';	
+}
+
 function initial(){
-	changeButton();
+	hideButton();
 	showBars();
 }

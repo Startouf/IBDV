@@ -29,9 +29,12 @@ body {
 	background-position: top-left;
 	width: 100%;
 	margin: 0%;
-	text-align: center;
+	text-align: left;
 	}
 	
+ ul {
+ 	list-style-type: none;
+ 	}
 /* Bouton */
 
 .bouton {
@@ -58,9 +61,15 @@ body {
 	
 /* Invisibilité */
 
-.invisible {
-	display: none;
-	}	
+a {
+	color: #ECD078;
+	text-decoration: none;
+}
+
+a:hover {
+	color: #D95B43;
+	cursor: crosshead;	
+}
 	
 /* Titles */
 
@@ -125,4 +134,15 @@ h3 {
     font-size: 10px;
 }
 
+/* Pie Chart */
+
+.slice {
+	font-size: 13px;
+	color: #FFFFFF;	
+}
+
+.slice path {
+	stroke: rgba(255,255,255,0.5);
+	stroke-width: 10px;	
+}
 /* end */
