@@ -1,0 +1,31 @@
+
+body{
+	min-width: 800px;
+	width: 1000px;
+	margin: 0 auto;
+	color: black;
+	font-family: "Calendas Plus", Georgia, serif;
+	/* background: url("../image/graph-tile.png") repeat; */
+}
+
+
+h1 {
+	text-align: center;
+	color: blue;
+	font-weight: bold;
+	text-decoration: underline;
+	font-size: 3.5em;
+	font: Calendas;
+}
+
+div.bar {
+	margin: 0;
+    display: inline-block;
+    width: 20px;
+    height: 75px;   /* We'll override this later */
+    background-color: teal;
+}
+
+.rectangle { /* classe rectangle */
+	fill: green;
+}
