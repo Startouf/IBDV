@@ -1,3 +1,4 @@
+
 function showSvg() {
 				
 				// variables
@@ -24,24 +25,33 @@ function showSvg() {
   						datasetBars.push(newNumber);  
 					}
 
-				var datasetScatter = [[]];                      
-					for (var i = 0; i < 10; i++) {          
-						var newSet = [Math.random()*50,Math.random()*50];  
-  						datasetScatter.push(newSet);  
-					}
+//				var datasetScatter = [[]];                      
+//					for (var i = 0; i < 10; i++) {          
+//						var newSet = [Math.random()*50,Math.random()*50];  
+//  						datasetScatter.push(newSet);  
+//					}
 				
+				datasetScatter = [[]];
+				d3.csv("data.csv", function(error, d) {
+ 					datasetScatter = d.map(function(d) { 
+ 						console.log(d);
+ 						return [ +d["annee"], +d["value"] ]; 
+ 					})
+				});
+  
 				// scales
 				var xScale = d3.scale.linear()
-                     .domain([0, d3.max(datasetScatter, function(d) { return d[0]; })])
+                     .domain([1960,2010]) 
                      .range([scatterPadding, wScatter - scatterPadding]);
                 
                 var yScale = d3.scale.linear()
-                     .domain([0, d3.max(datasetScatter, function(d) { return d[1]; })])
+                     .domain([1570,42390])  
                      .range([hScatter - scatterPadding, scatterPadding]);		
                
                var rScale = d3.scale.linear()
-                     .domain([0, d3.max(datasetScatter, function(d) { return d[1]; })])
+                     .domain([1570,42390])
                      .range([5, 30]);
+                
                 
                 // axis
                 var xAxis = d3.svg.axis()
@@ -200,42 +210,44 @@ function showSvg() {
 				    .attr("r", function(d) {
 					     return rScale(d[1]);
 					 })
-					 .attr("fill", function(d) {
-			       		if (0 <= xScale(d[0]) && xScale(d[0])<= 150) {
-			       			return "#C02942";	
-			       		} else if (150 < xScale(d[0]) && xScale(d[0]) <= 250) {
-			       			return "#542437";
-			       		} else if ( 250 < xScale(d[0]) && xScale(d[0]) <= 350) {
-			       			return "#53777A";
-			       		} else if (350 < xScale(d[0]) && xScale(d[0]) <= 400) {
-			       			return "#ECD078";
-			       		} else if (400 < xScale(d[0]) && xScale(d[0]) <= 500) {
-			       			return "#D95B43";
-			       		} else {
-			       			return "#ECD078";
-			       		}
-			       })
-			       .style("opacity",0)
+					 .attr("fill","#C02942")
+//					 .attr("fill", function(d) {
+//			       		if (0 <= xScale(d[0]) && xScale(d[0])<= 150) {
+//			       			return "#C02942";	
+//			       		} else if (150 < xScale(d[0]) && xScale(d[0]) <= 250) {
+//			       			return "#542437";
+//			       		} else if ( 250 < xScale(d[0]) && xScale(d[0]) <= 350) {
+//			       			return "#53777A";
+//			       		} else if (350 < xScale(d[0]) && xScale(d[0]) <= 400) {
+//			       			return "#ECD078";
+//			       		} else if (400 < xScale(d[0]) && xScale(d[0]) <= 500) {
+//			       			return "#D95B43";
+//			       		} else {
+//			       			return "#ECD078";
+//			       		}
+//			       })
+			      .style("opacity",0)
 			      .attr("stroke", "rgba(255,255,255,0.5)")
 			      .attr("stroke-width",5)
 			      .transition()
 				    .duration(3000)
 				    .style("opacity",1);	
-				svgScatter.selectAll("text")
-				    .data(datasetScatter)
-				    .enter()
-				    .append("text")
-      				.text(function(d) {
-      					 return Math.floor(xScale(d[0]))+";"+ Math.floor(yScale(d[1]));
-      				})
-      				.style("Font-size","10px")
-      				.style("Font-family","'Century Gothic'")
-      				.attr("x", function(d) {
-				         return xScale(d[0]);
-				    })
-				    .attr("y", function(d) {
-				         return yScale(d[1]);
-				    });
+
+//				svgScatter.selectAll("text")
+//				    .data(datasetScatter)
+//				    .enter()
+//				    .append("text")
+//      				.text(function(d) {
+//      					 return Math.floor(d[0])+";"+ Math.floor(d[1]);
+//      				})
+//      				.style("Font-size","10px")
+//      				.style("Font-family","'Century Gothic'")
+//      				.attr("x", function(d) {
+//				         return xScale(d[0]);
+//				    })
+//				    .attr("y", function(d) {
+//				         return yScale(d[1]);
+//				    });
 				
 				svgScatter.append("g")
                 	.attr("class","axis")	
@@ -245,7 +257,6 @@ function showSvg() {
 				    .attr("class", "axis")
 				    .attr("transform", "translate(" + scatterPadding + ",0)")
 				    .call(yAxis);
-				
 				}
 
 function hideButton() {
