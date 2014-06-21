@@ -2,6 +2,15 @@ body {
   font: 12px sans-serif;
 }
 
+circle{
+	cursor : pointer;
+	z-index: 5;
+}
+
+text{
+	z-index: 1;
+}
+
 .axis path,
 .axis line {
   fill: none;
@@ -21,25 +30,24 @@ body {
   display: none;
 }
 
-.tooltip2 {
-	visibility : hidden;
-	position : absolute;
-	bottom : 100px;
-	height : 100px;
-}
-
 .tooltip {
-  line-height: 1;
-  font-weight: bold;
-  padding: 12px;
-  background: rgba(0, 0, 0, 0.8);
-  color: #fff;
-  border-radius: 2px;
+	position: fixed;
+	transition: opacity 0.3s;
+    text-shadow:1px 1px 0px gray;
+	display: block;
+	line-height: 1;
+	font-weight: bold;
+	padding: 10px;
+	background: rgba(0, 0, 0, 0.8);
+	color: #fff;
+	border-radius: 2px;
+	z-index: 20;
 }
 
 /* Creates a small triangle extender for the tooltip */
 .tooltip:after {
   box-sizing: border-box;
+  margin-left: -20px;
   display: inline;
   font-size: 10px;
   width: 100%;
