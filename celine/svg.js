@@ -31,37 +31,51 @@ function showSvg() {
 //  						datasetScatter.push(newSet);  
 //					}
 				
+//				datasetScatter = [[]];
+//				d3.csv("data2.csv", function(error, d) {
+// 					datasetScatter = d.map(function(d) { 
+// 						d["annee"]=+d["annee"];
+// 						d["value"]=+d["value"];
+// 						var coucou = [ +d["annee"], +d["value"] ];
+// 						console.log(coucou);
+// 						return coucou; 
+// 					})
+//				});
+				
 				datasetScatter = [[]];
-				d3.csv("data.csv", function(error, d) {
- 					datasetScatter = d.map(function(d) { 
- 						console.log(d);
- 						return [ +d["annee"], +d["value"] ]; 
- 					})
-				});
-  
+				d3.csv("data2.csv", function(error, d) {
+	 					d.map(function(d) { 
+	 						d["annee"]=+d["annee"];
+	 						d["value"]=+d["value"];
+	 						datasetScatter.push([ +d["annee"], +d["value"] ]); 
+					});
+ 					datasetScatter.shift();
+				}); 			
+
+				// d3.min(datasetScatter, function(d) { return d[0]; }),d3.max(datasetScatter, function(d) { return d[0]; })	
+				// d3.min(datasetScatter, function(d) { return d[1]; }),d3.max(datasetScatter, function(d) { return d[1]; })
+							
 				// scales
 				var xScale = d3.scale.linear()
                      .domain([1960,2010]) 
-                     .range([scatterPadding, wScatter - scatterPadding]);
+                     .range([0, wScatter]);
                 
                 var yScale = d3.scale.linear()
-                     .domain([1570,42390])  
-                     .range([hScatter - scatterPadding, scatterPadding]);		
+                     .domain([1570,42800])  
+                     .range([hScatter, 0]);		
                
                var rScale = d3.scale.linear()
-                     .domain([1570,42390])
+                     .domain([1570,42800])
                      .range([5, 30]);
                 
                 
                 // axis
                 var xAxis = d3.svg.axis()
                 	 .scale(xScale)
-                	 .orient("bottom")
-                	 .ticks(5);
+                	 .orient("bottom");
            		var yAxis = d3.svg.axis()
            			 .scale(yScale)
-           			 .orient("left")
-           			 .ticks(5);
+           			 .orient("left");
 
 				// barcharts
 						
@@ -128,6 +142,7 @@ function showSvg() {
 				   .attr("y", function(d) {
         				return hBar - (d * 3) + 14;  
 				   }); 	
+   				
    				// circles
    				
 				d3.select("body")
@@ -154,7 +169,7 @@ function showSvg() {
 			        })
 			       .attr("cy", hCircles/2)
 			       .attr("r", function(d) {
-			            return d-10;
+			            return d;
 			       })
 			       .attr("fill", function(d) {
 			       		if (0 <= d && d<= 10) {
@@ -202,14 +217,13 @@ function showSvg() {
 				    .enter()
 				    .append("circle")
        			    .attr("cx", function(d) {
+       			    	console.log(xScale(d[0]));
 				         return xScale(d[0]);
 				    })
 				    .attr("cy", function(d) {
 				         return yScale(d[1]);
 				    })
-				    .attr("r", function(d) {
-					     return rScale(d[1]);
-					 })
+				    .attr("r",5)
 					 .attr("fill","#C02942")
 //					 .attr("fill", function(d) {
 //			       		if (0 <= xScale(d[0]) && xScale(d[0])<= 150) {
@@ -233,21 +247,21 @@ function showSvg() {
 				    .duration(3000)
 				    .style("opacity",1);	
 
-//				svgScatter.selectAll("text")
-//				    .data(datasetScatter)
-//				    .enter()
-//				    .append("text")
-//      				.text(function(d) {
-//      					 return Math.floor(d[0])+";"+ Math.floor(d[1]);
-//      				})
-//      				.style("Font-size","10px")
-//      				.style("Font-family","'Century Gothic'")
-//      				.attr("x", function(d) {
-//				         return xScale(d[0]);
-//				    })
-//				    .attr("y", function(d) {
-//				         return yScale(d[1]);
-//				    });
+				svgScatter.selectAll("text")
+				    .data(datasetScatter)
+				    .enter()
+				    .append("text")
+      				.text(function(d) {
+      					 return Math.floor(d[0])+";"+ Math.floor(d[1]);
+      				})
+      				.style("Font-size","10px")
+      				.style("Font-family","'Century Gothic'")
+      				.attr("x", function(d) {
+				         return xScale(d[0]);
+				    })
+				    .attr("y", function(d) {
+				         return yScale(d[1]);
+				    });
 				
 				svgScatter.append("g")
                 	.attr("class","axis")	

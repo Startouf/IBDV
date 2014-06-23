@@ -2,20 +2,31 @@ function showSvg() {
 				
 				// variables
 				
-				var w = 500;                     
-			    var h = 500;                            
-			    var r = 250;      
+				var w = 1000;                     
+			    var h = 1000;                            
+			    var r = 500;      
 			    var Padding = 1;                  
 			    var color = d3.scale.ordinal()
 			    	.range(["#E2D5B6", "#91B5A8", "#337E8D", "#34426C", "#372146"]);    
 					
                 // dataset 
                          
-			    dataset = [{"label":"happiness", "value":40}, 
-			            {"label":"rage", "value":10}, 
-			            {"label":"sadness", "value":5},
-			            {"label":"despair","value":30},
-			            {"label":"boredom","value":15}];
+			    dataset = [{"label":"ENS", "value":4}, 
+			            {"label":"Centrale Pa", "value":4}, 
+			            {"label":"Centrale Lyon", "value":4},
+			            {"label":"C. Lille","value":2},
+			            {"label":"C. Marseille","value":2},
+			            {"label":"Supélec","value":16},
+			            {"label":"Mines Pa","value":2},
+			            {"label":"Mines Saint Etienne","value":4},
+			            {"label":"ENSTA","value":8},
+			            {"label":"Supaéro","value":4},
+			            {"label":"ENSICA","value":2},
+			            {"label":"TPT","value":2},
+			            {"label":"Télécom Bretagne","value":4},
+			            {"label":"Arts & Métiers","value":8},
+			            {"label":"5/2","value":8},
+			            {"label":"Autres","value":10}];
 			            
 				// pie
 										
