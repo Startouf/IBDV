@@ -7,8 +7,8 @@
         <script type="text/javascript" src="d3/d3.js"></script>
     </head>
     <link rel="stylesheet" type="text/css" media="screen" title="User Defined Style" href="css.css" />
-    <body>
-
+    <body onload="initial()">
+    	<script type="text/javascript" src="piechart.js"></script>
 		<script type="text/javascript">
 			d3.select("body").append("p")
 				.attr("align","center")
@@ -17,26 +17,17 @@
 					.style("Font-weight","bold")
 					.style("Font-size","80px")
 					.style("color","#C02942")
-					.text("p a f !");
-		</script>	
-		
-		<div align="center">
-		<p> Monday, Tuesday, Wednesday </p>
-		<p>
-		<ul>
-			<li><a href="barcharts.html">HTML Barcharts</a></li>
-			<li><a href="svg.html">Animated SVG diagrams</a></li>
-			<li><a href="piechart.html">Animated SVG Pie Chart</a></li>	
-		</ul>
-		</p>
-		<p> Thursday, Friday </p>
-		<p>
-		<ul>
-			<li><a href="webgl1.html">WebGL Intro</a></li>
-			<li><a href="trianglesquare.html">WebGL : triangle & square</a></li>
-			<li><a href="scatterplot.html">Scatterplot using data from a CSV file</a></li>				
-		</ul>
-		</p>
-		</div>
+					.text("Résultats 2013");
+			d3.select("body").append("p")
+				.attr("align","center")
+					.style("Font-family","'Century Gothic'")
+					.style("Font-weight","bold")
+					.style("Font-size","30px")
+					.style("color","#53777A")
+					.text("Intégrations 2013 de la PSI* de Condorcet");		
+		</script>
+			
+				 <!-- <button class="bouton" onclick="initial()"> SHOW ! </button> -->
+
     </body>
 </html>     

@@ -2,6 +2,7 @@
 function showSvg() {
 				
 				// variables
+					
 				var hCircles = 100;
 				var hBar = 200;
 				var wBar = 1000;
@@ -11,6 +12,7 @@ function showSvg() {
 				var wScatter = 500;
 
                 // datasets 
+                          
 				var datasetCircles = [];                      
 					for (var i = 0; i < 30; i++) {          
 						var newNumber = Math.random()*50;  
@@ -28,28 +30,46 @@ function showSvg() {
 						var newSet = [Math.random()*50,Math.random()*50];  
   						datasetScatter.push(newSet);  
 					}
-								
+					
+				console.log(datasetScatter[0]);	
+				
+//				datasetScatter = [[]];
+//				d3.csv("data2.csv", function(error, d) {
+//	 					d.map(function(d) { 
+//	 						d["annee"]=+d["annee"];
+//	 						d["value"]=+d["value"];
+//	 						var coucou = [ +d["annee"], +d["value"] ];
+//	 						datasetScatter.push(coucou); 
+//					});
+//					datasetScatter.shift();
+//				}); 
+//				
+//				console.log(datasetScatter);
+//				
+				 
 				// scales
 				var xScale = d3.scale.linear()
-                     .domain([0,50]) // max is 50
+                     .domain([d3.min(datasetScatter, function(d) { return d[0]; }),d3.max(datasetScatter, function(d) { return d[0]; })]) 
                      .range([0, wScatter]);
                 
                 var yScale = d3.scale.linear()
-                     .domain([0,50]) // max is 50
+                     .domain([d3.min(datasetScatter, function(d) { return d[1]; }),d3.max(datasetScatter, function(d) { return d[1]; })])  
                      .range([hScatter, 0]);		
                
                var rScale = d3.scale.linear()
-                     .domain([0,50])
+                     .domain([1570,42390])
                      .range([5, 30]);
                 
                 
                 // axis
                 var xAxis = d3.svg.axis()
                 	 .scale(xScale)
-                	 .orient("bottom");
+                	 .orient("bottom")
+                	 .ticks(5);
            		var yAxis = d3.svg.axis()
            			 .scale(yScale)
-           			 .orient("left");
+           			 .orient("left")
+           			 .ticks(5);
 
 				// barcharts
 						
@@ -197,25 +217,23 @@ function showSvg() {
 				    .attr("cy", function(d) {
 				         return yScale(d[1]);
 				    })
-				    .attr("r",function(d) {
-				    	return rScale(d[1]);	
-				    })
+				    .attr("r",5)
 					 .attr("fill","#C02942")
-					 .attr("fill", function(d) {
-			       		if (0 <= xScale(d[0]) && xScale(d[0])<= 150) {
-			       			return "#C02942";	
-			       		} else if (150 < xScale(d[0]) && xScale(d[0]) <= 250) {
-			       			return "#542437";
-			       		} else if ( 250 < xScale(d[0]) && xScale(d[0]) <= 350) {
-			       			return "#53777A";
-			       		} else if (350 < xScale(d[0]) && xScale(d[0]) <= 400) {
-			       			return "#ECD078";
-			       		} else if (400 < xScale(d[0]) && xScale(d[0]) <= 500) {
-			       			return "#D95B43";
-			       		} else {
-			       			return "#ECD078";
-			       		}
-			       })
+//					 .attr("fill", function(d) {
+//			       		if (0 <= xScale(d[0]) && xScale(d[0])<= 150) {
+//			       			return "#C02942";	
+//			       		} else if (150 < xScale(d[0]) && xScale(d[0]) <= 250) {
+//			       			return "#542437";
+//			       		} else if ( 250 < xScale(d[0]) && xScale(d[0]) <= 350) {
+//			       			return "#53777A";
+//			       		} else if (350 < xScale(d[0]) && xScale(d[0]) <= 400) {
+//			       			return "#ECD078";
+//			       		} else if (400 < xScale(d[0]) && xScale(d[0]) <= 500) {
+//			       			return "#D95B43";
+//			       		} else {
+//			       			return "#ECD078";
+//			       		}
+//			       })
 			      .style("opacity",0)
 			      .attr("stroke", "rgba(255,255,255,0.5)")
 			      .attr("stroke-width",5)
@@ -223,30 +241,30 @@ function showSvg() {
 				    .duration(3000)
 				    .style("opacity",1);	
 
-				svgScatter.selectAll("text")
-				    .data(datasetScatter)
-				    .enter()
-				    .append("text")
-      				.text(function(d) {
-      					 return Math.floor(d[0])+";"+ Math.floor(d[1]);
-      				})
-      				.style("Font-size","10px")
-      				.style("Font-family","'Century Gothic'")
-      				.attr("x", function(d) {
-				         return xScale(d[0]);
-				    })
-				    .attr("y", function(d) {
-				         return yScale(d[1]);
-				    });
+//				svgScatter.selectAll("text")
+//				    .data(datasetScatter)
+//				    .enter()
+//				    .append("text")
+//      				.text(function(d) {
+//      					 return Math.floor(d[0])+";"+ Math.floor(d[1]);
+//      				})
+//      				.style("Font-size","10px")
+//      				.style("Font-family","'Century Gothic'")
+//      				.attr("x", function(d) {
+//				         return xScale(d[0]);
+//				    })
+//				    .attr("y", function(d) {
+//				         return yScale(d[1]);
+//				    });
 				
-				svgScatter.append("g")
-                	.attr("class","axis")	
-   					.attr("transform", "translate(0," + (hScatter - scatterPadding) + ")")   					
-   					.call(xAxis);
-    	    	svgScatter.append("g")
-				    .attr("class", "axis")
-				    .attr("transform", "translate(" + scatterPadding + ",0)")
-				    .call(yAxis);
+//				svgScatter.append("g")
+//                	.attr("class","axis")	
+//   					.attr("transform", "translate(0," + (hScatter - scatterPadding) + ")")   					
+//   					.call(xAxis);
+//    	    	svgScatter.append("g")
+//				    .attr("class", "axis")
+//				    .attr("transform", "translate(" + scatterPadding + ",0)")
+//				    .call(yAxis);
 				}
 
 function hideButton() {
