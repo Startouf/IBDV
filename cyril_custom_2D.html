@@ -1,0 +1,68 @@
+<html>
+	<head>
+		<meta charset="utf-8" />
+     	<title>D3 stuff</title>
+		<link rel="stylesheet" href="css/cyril_custom_2D.css" />
+		<script type="text/javascript" src="js/d3.v3.js"></script>
+		<script type="text/javascript" src="js/d3.tip.v0.6.3.js"></script>
+		<script type="text/javascript" src="js/jquery-2.1.1.min.js"></script>
+		<script type="text/javascript" src="js/cyril_custom_2d.js"></script>
+	</head>
+	<body onload="init()">
+		<section id="main_descr">
+			<h1>Custom data visualisation</h1>
+			<h2>Let it rock :D</h2>
+			
+			<h2>Input</h2>
+				<ul><li>2 dimensional data, and 1+n param per data object : [ Description, Number Views, Number of comments, Number vote Up, Number vote Down,  etc.]
+				</li><li>Not yet sure about the params that could go in n : see below
+				</li></ul>
+			
+			<h2>Idea behind it :</h2>
+				<p>
+					I'm going to work on a collaborative wiki this summer, and for example, people are going to post their ideas on some points,
+					and it could be cool to have a visualisation of all their ideas, and their "hotteness" i.e. if many people posted comments, replies, etc.
+					So, I'd like to get a global view of all the ideas, sort them by hotteness, and draw some kind of scatterplot. 
+				</p>
+				
+			<h2>How to visualise</h2>
+				<p>
+					Ideas will be sorted by thei "hotteness", and the first one will be displayed in the center of the screen as a big "bubble". 
+					Then, the first other ones (by hotteness) will be on a circle around the first idea (for example, a circle that can contain 9 bubbles
+					Then, the second batch will be displayed on a bigger circle, that can contain more ideas
+					Etc. Till there are no more ideas to place
+				</p>
+				<p> 
+					The bubbles can have different properties to represent the n parameters :
+					<br />The size : could represent the global hotteness (like a ||.||2 of all the values)
+					<br />The color : could represent the overall approbation of the idea (number Votes Up/number Votes Down)
+					<br />What else ?
+				</p>
+			
+			<h2>Current data format</h2>
+			
+			<p>A 2D Array [[data1],[data2],...] where each data is an array of :
+				<ul>
+					<li>String : title of idea
+					</li><li>Number of comments
+					</li><li>Number of Votes Up
+					</li><li>Number of Votes Down
+					</li>
+				</ul>
+		</section>
+		
+		<section id="data_upl">
+			<button id="uploader">Upload a csv file </button>
+		</section>
+		
+		<section id="data">
+			<article id="visualization">
+			</article>
+			
+			<article id="key">
+			</article>
+		</section>
+		
+	</body>
+</html>
+
