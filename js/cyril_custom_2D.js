@@ -1,8 +1,6 @@
 /**** Circle showing 2D data with n+1 params **/
 function init() {
 	initData();
-	scale();
-	setupSVG();
 	setupTooltip();
 	setupHighlighters();
 	addKey();
@@ -15,15 +13,7 @@ var data_min_val = 2;
 var ideas;
 var dataset;
 
-function initData(){
-
-	d3.select("article #visualization").append("h2").text("Displaying data using basic numbers");
-		
-	ideas = ["A baby foot", "Some free access computers", "A wifi hotspot", "A touchpad", "Free tea at the bar", 
-	"Unlock Steam ports", "More washing machines", "Fix the ***** air conditioner", "Discounts on computers", "discounts on mobile subscriptions"];
-
-	dataset = new Array(ideas.length);
-
+function randomiseDataAndSort(){
 	//create 2-dimensional array using ideas as first element of each sub-array
 	for(var i=0; i< ideas.length; i++){
 		dataset[i] = new Array(n+1);
@@ -32,11 +22,26 @@ function initData(){
 			dataset[i][j] = Math.floor(Math.random() * data_max_val + data_min_val);
 		}
 	}
-
+	
 	//sort by hotteness
 	dataset = dataset.sort(function(a,b){
 		return d3.descending(hotteness(a), hotteness(b));
 	});
+	
+	scale();
+	showData();
+}
+
+function initData(){
+
+	d3.select("article #visualization").append("h2").text("Displaying data using basic numbers");
+		
+	ideas = ["A baby foot", "Some free access computers", "A wifi hotspot", "A touchpad", "Free tea at the bar", 
+	"Unlock Steam ports", "More washing machines", "Fix the ***** air conditioner", "Discounts on computers", "discounts on mobile subscriptions"];
+
+	dataset = new Array(ideas.length);
+	
+	randomiseDataAndSort();
 }
 
 /**************************
@@ -113,7 +118,7 @@ function scale(){
 /*******************************
  ** Setup Data Visualization **
  *******************************/
-function setupSVG(){
+function showData(){
 	//svg params
 	var offsets;
 
