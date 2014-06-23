@@ -1,0 +1,83 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Globe and meteors impacts</title>
+    <meta charset="utf-8">
+    <link  href="css/main.css" rel="stylesheet"/>
+  </head>
+<body>
+    
+  <div id="container"></div>
+
+  <script src="./javascript/three.min.js"></script>
+  <script type="text/javascript">   
+   
+   
+
+    var POS_X = 1800;
+    var POS_Y = 500;
+    var POS_Z = 1800;
+    var WIDTH = 1000;
+    var HEIGHT = 600;
+ 
+    var FOV = 45;
+    var NEAR = 1;
+    var FAR = 4000;
+ 
+    var renderer = new THREE.WebGLRenderer();
+    renderer.setSize(WIDTH,HEIGHT);
+    renderer.setClearColorHex(0x111111);
+ 
+    var mapDiv = document.getElementById("container");
+    mapDiv.appendChild(renderer.domElement);
+ 
+ 
+    var camera = new THREE.PerspectiveCamera(FOV,WIDTH/HEIGHT,NEAR,FAR);
+    camera.position.set(POS_X,POS_Y, POS_Z);
+    camera.lookAt(new THREE.Vector3(0,0,0));
+ 
+
+    var scene = new THREE.Scene();
+    scene.add(camera);
+	
+	//addLights();
+    addSphere();
+	render();
+ 
+
+      /*  jQuery.get('data/meteors.xlsx', function(data) {
+            //addDensity(CSVToArray(data));
+            addLights();
+            addSphere();
+            //addClouds();
+            render();
+        });
+    }); */
+	
+	function addSphere() {
+        var sphere = new THREE.SphereGeometry(600,50,50);
+        //var planetTexture = THREE.ImageUtils.loadTexture('map.jpg', new THREE.SphericalReflectionMapping());
+       /* var material =  new THREE.MeshBasicMaterial( {
+            map: planetTexture,
+			overdraw: true,
+             } ); */
+		var material = new THREE.MeshBasicMaterial( { map: THREE.ImageUtils.loadTexture('map.jpg', new THREE.SphericalReflectionMapping()), overdraw: true } );		 
+			 
+        mesh = new THREE.Mesh(sphere,material);
+        scene.add(mesh);
+		render();
+		}
+		
+    function addLights() {
+        light = new THREE.DirectionalLight(0x3333ee, 3.5, 500 );
+        scene.add( light );
+        light.position.set(POS_X,POS_Y,POS_Z);
+    }
+	
+	function render() {
+		renderer.render(scene, camera);
+	}
+	
+  </script>
+</body>
+</html>
