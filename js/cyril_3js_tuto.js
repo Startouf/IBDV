@@ -94,14 +94,13 @@ var total;
 function addData(callback) {
 	//Load the data, and wait for callback
 	parseMeteorsData(function(){
-			
 		// the geometry that will contain all our cubes
 		unifiedMesh = new THREE.Geometry();
 		// material to use for each of our elements. Could use a set of materials to
 		// add colors relative to the density. Not done here.
+		
 		var cubeMat = new THREE.MeshLambertMaterial({color: 0x000000,opacity:0.6, emissive:0xffffff});
 		for (var i = 0 ; i < dataset.length ; i++) {
-
 			//get the data, and set the offset, we need to do this since the x,y coordinates
 			//from the data aren't in the correct format
 			var lat = dataset[i].latitude;
