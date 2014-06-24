@@ -1,3 +1,30 @@
+// function initial
+function initial(){
+	hideButton();
+	/*
+	 * On lance parseData, et quand il a fini de charger les données, 
+	 * il lancera showSVG qui est une fonction callback passée en paramètre
+	 */
+	parseData(function(){showSvg();});
+}
+
+// data parsing
+function parseData(callback) {
+	d3.csv("Resources/data.csv", function(error,d) {
+		d.forEach(function(d,i){
+			datasetScatter.push({
+				annee: +d.annee,
+				valeur : +d.value
+			})
+		})
+		//Lancement de la fonction callback quand le d.forEach a fini
+		callback();
+	})
+	console.log(datasetScatter);
+}
+
+var datasetScatter = [];
+
 // function showSvg
 function showSvg() {
 				
@@ -5,23 +32,7 @@ function showSvg() {
 	var scatterPadding = 100;
 	var hScatter = 500;
 	var wScatter = 500;
-	var datasetScatter = [];
-	
-	// data parsing
-	function parseData() {
-		d3.csv("Resources/data.csv", function(error,d) {
-			d.forEach(function(d,i){
-				datasetScatter.push({
-					annee: + d.annee,
-					valeur : + d.value
-				})
-			})
-		})
-		console.log(datasetScatter);
-	}
-		
-	parseData();
-										
+												
 	// scales
 	var xScale = d3.scale.linear()
 	     .domain([1960,2010]) 
@@ -61,14 +72,10 @@ function showSvg() {
 		.append("circle")
 		.attr("cx", function(d) {
 			console.log(d.annee);
-			/* Attention ! d.xxx est une valeur PARSEE donc javascript ne sait pas qu'il s'agit d'un nombre.
-				Et il ne détecte pas qu'il faut faire une conversion : 
-				par exemple, au lieu de "cx" en attr, tu pourrais avoir "text"
-				*/
-			return xScale(Number(d.annee));
+			return xScale((d.annee));
 		})
 		.attr("cy", function(d) {
-			return yScale(Number(d.valeur));
+			return yScale((d.valeur));
 		})
 		.attr("r",5)
 		.attr("fill","#C02942")
@@ -109,10 +116,4 @@ function showSvg() {
 // function hideButton
 function hideButton() {
 	document.getElementsByTagName('button')[0].style.display = 'none';	
-}
-
-// function initial
-function initial(){
-	hideButton();
-	showSvg();
 }
