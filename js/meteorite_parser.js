@@ -1,15 +1,17 @@
 var dataset =[];
 
 //Below jquery stuff waits for DOM to be completes before executing
+/*
 $(function(){
 	parseMeteorsData();
 });
+*/
 
 /**
  ** Load meteor information from csv file with ; separator 
  ** WARNING : Data loaded asynchronously !!!
  **/
-function parseMeteorsData() {
+function parseMeteorsData(callback2) {
 	//We're using a csv with ";", which is not the usual csv separator, so we need to call arbitrary delimiter functions from d3
 	var dsv = d3.dsv(";", "text/plain")
 	
@@ -29,11 +31,7 @@ function parseMeteorsData() {
 				//rest is krap ?
 			})
 		})
-		/* Put callback stuff here ! */
-		
-		//alert(dataset[0].place);
-		
-		/* End of callback stuff */
+		callback2();
 	})
 	
 	/* Instructions here will be executed

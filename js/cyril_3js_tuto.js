@@ -1,4 +1,4 @@
-var WIDTH = 800, HEIGHT = 500, POS_X = 1800, POS_Y = 500, POS_Z = 1800;
+var WIDTH = 800, HEIGHT = 600, POS_X = 1800, POS_Y = 500, POS_Z = 1800;
 var VIEW_ANGLE = 45, ASPECT = WIDTH / HEIGHT, NEAR = 0.1, FAR = 10000;
 var $container = $('#threejs');
 
@@ -10,17 +10,20 @@ $(function(){
 	init();
 })
 
-function init() {
+function init(semaf, semaf2) {
+	
 	renderer = new THREE.WebGLRenderer();
-		renderer.setClearColorHex(0x111111);
+		renderer.setClearColorHex(0xffffff);
 		renderer.setSize(WIDTH, HEIGHT);
 	camera = new THREE.PerspectiveCamera(VIEW_ANGLE, ASPECT, NEAR, FAR);
-	camera.position.set(0, 0, 2000);
+	camera.position.set(0, 0, 1800);
 	scene =  new THREE.Scene();
 	
 	document.body.appendChild( renderer.domElement );
 	addEarth();
+	addClouds();
 	addLights();
+	addData();
 	gameLoop();
 }
 
@@ -32,6 +35,7 @@ function loadData(){
 			addLights();
 			addEarth();
 			addClouds();
+			addData();
 		});
 	});
 }
@@ -40,6 +44,7 @@ function loadData(){
 // add the earth
 
 var earth;
+var clouds;
 
 function addEarth() {
 	var spGeo = new THREE.SphereGeometry(600,50,50);
@@ -54,12 +59,12 @@ function addEarth() {
 // add clouds
 function addClouds() {
 	var spGeo = new THREE.SphereGeometry(600,50,50);
-	var cloudsTexture = THREE.ImageUtils.loadTexture( "assets/earth_clouds_1024.png" );
+	var cloudsTexture = THREE.ImageUtils.loadTexture( "image/clouds.png" );
 	var materialClouds = new THREE.MeshPhongMaterial( { color: 0xffffff, map: cloudsTexture, transparent:true, opacity:0.3 } );
 
-	meshClouds = new THREE.Mesh( spGeo, materialClouds );
-	meshClouds.scale.set( 1.015, 1.015, 1.015 );
-	scene.add( meshClouds );
+	clouds = new THREE.Mesh( spGeo, materialClouds );
+	clouds.scale.set( 1.015, 1.015, 1.015 );
+	scene.add( clouds );
 }
 
 // add a simple light
@@ -81,6 +86,49 @@ function latLongToVector3(lat, lon, radius, heigth) {
 	return new THREE.Vector3(x,y,z);
 }
 
+var unifiedMesh;
+var total;
+
+// simple function that converts the density data to the markers on screen
+// the height of each marker is relative to the density.
+function addData(callback) {
+	//Load the data, and wait for callback
+	parseMeteorsData(function(){
+			
+		// the geometry that will contain all our cubes
+		unifiedMesh = new THREE.Geometry();
+		// material to use for each of our elements. Could use a set of materials to
+		// add colors relative to the density. Not done here.
+		var cubeMat = new THREE.MeshLambertMaterial({color: 0x000000,opacity:0.6, emissive:0xffffff});
+		for (var i = 0 ; i < dataset.length ; i++) {
+
+			//get the data, and set the offset, we need to do this since the x,y coordinates
+			//from the data aren't in the correct format
+			var lat = dataset[i].latitude;
+			var lng = dataset[i].longitude;
+			var value = dataset[i].mass;
+
+			// calculate the position where we need to start the cube
+			var position = latLongToVector3(lat, lng, 600, 2);
+
+			// create the cube
+			var cube = new THREE.Mesh(new THREE.CubeGeometry(5,5,1+Math.log(value+0.1),1,1,1,cubeMat));
+
+			// position the cube correctly
+			cube.position = position;
+			cube.lookAt( new THREE.Vector3(0,0,0) );
+
+			// merge with main model
+			THREE.GeometryUtils.merge(unifiedMesh,cube);
+		}
+
+		// create a new mesh, containing all the other meshes.
+		total = new THREE.Mesh(unifiedMesh);
+
+		// and add the total mesh to the scene
+		scene.add(total);
+	})
+}
 
 var sphere;
 var cube;
@@ -176,6 +224,10 @@ function update() {
     //cube.rotation.x += 0.1;
     //cube.rotation.y += 0.1;
 	earth.rotation.y += 0.005;
+	clouds.rotation.y += 0.005;
+	if(total){
+		total.rotation.y += 0.005;
+	}
 }
 
 function render() {
