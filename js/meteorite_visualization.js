@@ -19,11 +19,18 @@ $(function(){
 function init(semaf, semaf2) {
 	
 	renderer = new THREE.WebGLRenderer();
-		renderer.setClearColorHex(0xffffff);
-		renderer.setSize(WIDTH, HEIGHT);
+	renderer.setClearColor(0xdddddd);
+	renderer.setSize(WIDTH, HEIGHT);
 	camera = new THREE.PerspectiveCamera(VIEW_ANGLE, ASPECT, NEAR, FAR);
 	camera.position.set(0, 0, 1800);
+	var controls;
+	
+	controls = new THREE.OrbitControls(camera,renderer.domElement);
+    controls.addEventListener('change', render);
+	
 	scene =  new THREE.Scene();
+	camera.lookAt(scene.position);
+	scene.add(camera);
 	
 	$("#threejs").append( renderer.domElement );
 	addLights();
@@ -44,7 +51,9 @@ var LIGHT_X = 1800, LIGHT_Y = 500, LIGHT_Z = 1800;
 /** Lights the Earth **/
 function addLights() {
 	light = new THREE.DirectionalLight(0xaaaaee, 3.5, 500 );
+	light.lookAt(scene.position);
 	scene.add( light );
+	camera.add(light);
 	light.position.set(LIGHT_X,LIGHT_Y,LIGHT_Z);
 	render();
 		//Statusbar
@@ -247,17 +256,38 @@ function updateMeteors(delta){
 	if(indexDoneFalling > Math.round(numChunk*chunkSize - 0.25*chunkSize)){
 		prepare_next_chunk_bool = true;
 	}
+	
+	if(indexDoneFalling%500 === 0){
+		compactGeometry();
+	}
 }
 
-var compactedGeom;
+var compactedGeometry;
 var compactedMesh;
+var lastIndexMerged = 0;
 
 function compactGeometry(){
-	// the geometry that will contain all our crashed meteorites
-	compactedGeom = new THREE.Geometry();
-	for(var i=0; i<= indexDoneFalling; i++){
-		
+
+	//Don't compact if it has already been done
+	if(lastIndexMerged === indexDoneFalling){
+		return;
 	}
+	// the geometry that will contain all our crashed meteorites
+	compactedGeometry = new THREE.Geometry();
+	for(var i=lastIndexMerged; i<= indexDoneFalling; i++){
+		THREE.GeometryUtils.merge(compactedGeometry, meteorites[i].cube);
+		scene.remove(meteorites[i].cube);
+	}
+	
+	//TODO : find a way to keep colors !
+	var mat = new THREE.MeshLambertMaterial({color: 0x000000,opacity:0.6, emissive:0xffffff})
+	
+	compactedMesh = new THREE.Mesh(compactedGeometry, mat);
+	
+	scene.add(compactedMesh);
+	lastIndexMerged = indexDoneFalling;
+	
+	console.log("Compacted " + lastIndexMerged + " meteorites meshes");
 }
 
 var date = new Date();
@@ -393,4 +423,22 @@ function addStatusBars(){
 			return "rgb(200, 70, 20)";
 		});
 		
+}
+
+function updateStatus(statusName, percentage){
+	var statusBar;
+	switch (statusName){
+		case "load": 
+			statusBar = load_status;
+			break;
+		case "parse":
+			statusBar = parse_status;
+			break;
+		default:
+			break;
+	}
+	var amount = Math.round(percentage);
+	statusBar
+		.attr("y", HEIGHT/2-amount)
+		.attr("height", amount)
 }

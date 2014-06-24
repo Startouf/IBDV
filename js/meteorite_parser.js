@@ -31,11 +31,8 @@ function parseMeteorsData(callback2, statusbarLoaded, statusbarParse) {
 				latitude: +d.latitude
 				//rest is krap ?
 			})
-			if(statusbarParse){
-				var percentComplete = Math.round(i/data.length)
-				statusbarParse
-					.attr("height", percentComplete)
-					.attr("y", HEIGHT/2-percentComplete)
+			if(statusbarParse && (i%100 === 0)){
+				updateStatus("parse", (i/data.length)*100);
 			}
 		})
 		callback2();
@@ -43,10 +40,7 @@ function parseMeteorsData(callback2, statusbarLoaded, statusbarParse) {
 	.on("progress", function(event){
 		//update progress bar
 		if (statusbarLoaded && d3.event.lengthComputable) {
-			var percentComplete = Math.round(d3.event.loaded * 100 / d3.event.total);
-			statusbarLoaded
-				.attr("height", percentComplete)
-				.attr("y", HEIGHT/2-percentComplete)
+			updateStatus("load",d3.event.loaded * 100 / d3.event.total);
 	    }
 	})
 	
