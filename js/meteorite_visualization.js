@@ -10,41 +10,9 @@ var status, earth_status, load_status, parse_status, meteors_status;
 
 /** Load after DOM generated **/
 $(function(){
-	status = d3.select("#status").append("svg")
-		.attr("width", 400)  
-		.attr("height", HEIGHT)
-	earth_status = status.append("rect")
-		.attr("x", 0)
-		.attr("y", HEIGHT/2)
-		.attr("width", 20)
-		.attr("height", 0)
-		.attr("fill", function(d) {
-			return "rgb(30, 30, 200)";
-		})
-	load_status = status.append("rect")
-		.attr("x", 22)
-		.attr("y", HEIGHT/2)
-		.attr("width", 20)
-		.attr("height", 0)
-		.attr("fill", function(d) {
-			return "rgb(200, 70, 20)";
-		})
-	parse_status = status.append("rect")
-		.attr("x", 44)
-		.attr("y", HEIGHT/2)
-		.attr("width", 20)
-		.attr("height", 0)
-		.attr("fill", function(d) {
-			return "rgb(200, 70, 20)";
-		})
-	meteors_status = status.append("rect")
-		.attr("x", 66)
-		.attr("y", HEIGHT/2)
-		.attr("width", 20)
-		.attr("height", 0)
-		.attr("fill", function(d) {
-			return "rgb(200, 70, 20)";
-		})
+	addStatusBars();
+	$("stop").click(function(){ stop(); });
+	$("start").click(function(){ start(); });
 	init();
 })
 
@@ -71,13 +39,13 @@ function init(semaf, semaf2) {
 		Earth + clouds & lighting
 	*********************************/
 
-var POS_X = 1800, POS_Y = 500, POS_Z = 1800;
+var LIGHT_X = 1800, LIGHT_Y = 500, LIGHT_Z = 1800;
 
 /** Lights the Earth **/
 function addLights() {
 	light = new THREE.DirectionalLight(0xaaaaee, 3.5, 500 );
 	scene.add( light );
-	light.position.set(POS_X,POS_Y,POS_Z);
+	light.position.set(LIGHT_X,LIGHT_Y,LIGHT_Z);
 	render();
 		//Statusbar
 		earth_status.transition()
@@ -131,8 +99,6 @@ function addClouds() {
 	Object Generation
  ************************/
 
-var geom;
-var unifiedMesh;
 var timeScale;
 var MAX_ANIMATION_TIME = 60000; // 1 min
 var cubeMat;
@@ -161,9 +127,7 @@ function addData(callback) {
 			//Every meteorite takes 2 seconds * 20FPS and BEFORE next year starts (and convert to millisecs
 			.range([1, 4500 * 2 * 20 * 1000])
 			.nice();
-			
-		// the geometry that will contain all our crashed meteorites
-		geom = new THREE.Geometry();
+		
 		// material to use for each of our elements. Could use a set of materials to
 		// add colors relative to the density. Not done here.
 		//TODO : handle every different meteor type;
@@ -175,52 +139,27 @@ function addData(callback) {
 		
 		prepareNextChunk();
 		
-		//Show everything already crashed 
-		/*
-		for (var i = 0 ; i < dataset.length ; i++) {
-			//get the data, and set the offset, we need to do this since the x,y coordinates
-			//from the data aren't in the correct format
-			var lat = dataset[i].latitude;
-			var lng = dataset[i].longitude;
-			var value = dataset[i].mass;
-
-			// calculate the position where we need to start the cube
-			var position = mapLatLongToVector3(lat, lng, 600, 2);
-
-			// create the cube
-			var cube = new THREE.Mesh(new THREE.CubeGeometry(5,5,1+Math.log(value+0.1),1,1,1,cubeMat.mat1));
-
-			// position the cube correctly
-			cube.position = position;
-			cube.lookAt( new THREE.Vector3(0,0,0) );
-
-			// merge with main model
-			THREE.GeometryUtils.merge(geom,cube);
-		}
-
-		// create a new mesh, containing all the other meshes.
-		//TODO : Add MeshFaceMaterials with the correct order for materials
-		unifiedMesh = new THREE.Mesh(geom);
-
-		// and add the total mesh to the scene
-		scene.add(total);
-		*/
 	}, load_status, parse_status)
 }
 
 var numChunk = 0;
 var meteorites = new Array();
-var finalGeom;
-var finalMesh;
 var preparedChunks = 0;
+var allDataRendered = false;
 
 /** For a chunk, prepares the cube VBOs for each meteorite **/
 function prepareNextChunk(){
 	
+	//Skip the last meteorite chunk (or TODO handle non multiple of chunkSize)
 	if((numChunk+1)*chunkSize > dataset.length){
+		if(allDataRendered === false){
+			allDataRendered = true;
+		} else{
+			console.log("Next Chunk exceeds data.length !!!")
+		}
+		return;
 	}
 
-	finalGeom = new THREE.Geometry();
 	numChunk++;
 
 	for (var i = numChunk*chunkSize ; i < (numChunk+1)*chunkSize ; i++) {
@@ -229,6 +168,7 @@ function prepareNextChunk(){
 		var lat = dataset[i].latitude;
 		var lng = dataset[i].longitude;
 		var value = dataset[i].mass;
+		var material = getMaterialForType(dataset[i].type);
 
 		// calculate the position where we need to start the cube
 		//(The Earth is 600 radius)
@@ -237,7 +177,7 @@ function prepareNextChunk(){
 
 		// create the cube
 		//TODO : choose material depending on meteorite type
-		var cube = new THREE.Mesh(new THREE.CubeGeometry(10,10,1+Math.log(value+0.1),1,1,1,cubeMat.mat1));
+		var cube = new THREE.Mesh(new THREE.BoxGeometry(5,5,1+Math.log(value+0.1),1,1,1),material);
 		
 		cube.position = position;
 		cube.lookAt( new THREE.Vector3(0,0,0) );
@@ -248,20 +188,23 @@ function prepareNextChunk(){
 			lng: lng,
 			cube : cube,
 			//time: timeScale(dataset[i].year),
-			time: (i+1)*100
+			//TODO scale
+			time: (i+1)*100,
+			isFalling: false,
+			data: dataset[i]
 		});
 		
 		scene.add(cube);
 
 		// At first, hide the object
 		//TODO
-
-		//THREE.GeometryUtils.merge(currentGeom,cube);
+		
 	}
 	
 	//currentMesh = new THREE.Mesh(currentGeom);
 	//updateNeeded(currentMesh);	//Tell the mesh its geometry is going to be updated
 	//scene.add(currentMesh);
+	
 	if(preparedChunks === 0){
 		startTime = date.getTime();
 		currentTime = 0;
@@ -270,6 +213,10 @@ function prepareNextChunk(){
 	preparedChunks++;
 }
 
+/*** Handle every meteor type ***/
+function getMaterialForType(nameOfMeteorType){
+	return cubeMat.mat1;
+}
 
 var indexDoneFalling = 0;
 var currentTime;
@@ -287,12 +234,13 @@ function updateMeteors(delta){
 			if(currentTime < meteorites[i].time + TIME_TO_FALL  ){
 				meteorites[i].cube.position = mapLatLongToVector3(meteorites[i].lat, meteorites[i].lng, 600, 
 					600-Math.round((595*currentTime/(meteorites[i].time + TIME_TO_FALL))));
-				console.log("meteorite " + i + " has fallen to " + 600-Math.round((5*currentTime/(meteorites[i].time + TIME_TO_FALL))))
+				//console.log("meteorite " + i + " has fallen to " + 600-Math.round((5*currentTime/(meteorites[i].time + TIME_TO_FALL))))
 			} // If the meteorite has crashed
 			else{
 				indexDoneFalling++;
 				meteorites[i].cube.position = mapLatLongToVector3(meteorites[i].lat, meteorites[i].lng, 600, 2);
-				console.log("meteorite" + i + "has landed")
+				logToUserConsole(meteorites[i].data);
+				//console.log("meteorite" + i + "has landed")
 			}
 		}
 	}
@@ -301,25 +249,15 @@ function updateMeteors(delta){
 	}
 }
 
-var sphere;
-var cube;
+var compactedGeom;
+var compactedMesh;
 
-// convert the positions from a lat, lon to a position on a sphere.
-function mapLatLongToVector3(lat, lon, radius, heigth) {
-	var phi = (lat)*Math.PI/180;
-	var theta = (lon-180)*Math.PI/180;
-
-	var x = -(radius+heigth) * Math.cos(phi) * Math.cos(theta);
-	var y = (radius+heigth) * Math.sin(phi);
-	var z = (radius+heigth) * Math.cos(phi) * Math.sin(theta);
-
-	return new THREE.Vector3(x,y,z);
-}
-
-function gameLoop(){
-    update();
-    render();
-	requestAnimationFrame(gameLoop)
+function compactGeometry(){
+	// the geometry that will contain all our crashed meteorites
+	compactedGeom = new THREE.Geometry();
+	for(var i=0; i<= indexDoneFalling; i++){
+		
+	}
 }
 
 var date = new Date();
@@ -333,6 +271,7 @@ function update() {
 	if(total){
 		total.rotation.y += 0.005;
 	}
+	//TODO : move all the cubes
 	*/
 	
 	date = new Date();
@@ -377,4 +316,81 @@ function updateNoLongerNeeded(object){
 	object.geometry.dynamic = false;
 	object.geometry.verticesNeedUpdate = false;
 	object.geometry.normalsNeedUpdate = false;
+}
+
+function gameLoop(){
+    update();
+    render();
+	requestAnimationFrame(gameLoop)
+}
+
+// convert the positions from a lat, lon to a position on a sphere.
+function mapLatLongToVector3(lat, lon, radius, heigth) {
+	var phi = (lat)*Math.PI/180;
+	var theta = (lon-180)*Math.PI/180;
+
+	var x = -(radius+heigth) * Math.cos(phi) * Math.cos(theta);
+	var y = (radius+heigth) * Math.sin(phi);
+	var z = (radius+heigth) * Math.cos(phi) * Math.sin(theta);
+
+	return new THREE.Vector3(x,y,z);
+}
+
+/**************************
+	User related stuff
+	*************************/
+
+function stop(){
+
+}
+
+function start(){
+
+}
+
+/** When a meteorite has Crashed, 
+ ** show it to the user, 
+ ** and he can click on the log entry to go to the website
+ **/
+function logToUserConsole(data){
+
+}
+
+function addStatusBars(){
+	status = d3.select("#status").append("svg")
+		.attr("width", 400)  
+		.attr("height", HEIGHT)
+	earth_status = status.append("rect")
+		.attr("x", 0)
+		.attr("y", HEIGHT/2)
+		.attr("width", 20)
+		.attr("height", 0)
+		.attr("fill", function(d) {
+			return "rgb(30, 30, 200)";
+		})
+	load_status = status.append("rect")
+		.attr("x", 22)
+		.attr("y", HEIGHT/2)
+		.attr("width", 20)
+		.attr("height", 0)
+		.attr("fill", function(d) {
+			return "rgb(200, 70, 20)";
+		})
+	parse_status = status.append("rect")
+		.attr("x", 44)
+		.attr("y", HEIGHT/2)
+		.attr("width", 20)
+		.attr("height", 0)
+		.attr("fill", function(d) {
+			return "rgb(200, 70, 20)";
+		})
+	meteors_status = status.append("rect")
+		.attr("x", 66)
+		.attr("y", HEIGHT/2)
+		.attr("width", 20)
+		.attr("height", 0)
+		.attr("fill", function(d) {
+			return "rgb(200, 70, 20)";
+		});
+		
 }
