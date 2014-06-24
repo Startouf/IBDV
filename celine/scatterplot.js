@@ -61,10 +61,14 @@ function showSvg() {
 		.append("circle")
 		.attr("cx", function(d) {
 			console.log(d.annee);
-			return d.annee;
+			/* Attention ! d.xxx est une valeur PARSEE donc javascript ne sait pas qu'il s'agit d'un nombre.
+				Et il ne détecte pas qu'il faut faire une conversion : 
+				par exemple, au lieu de "cx" en attr, tu pourrais avoir "text"
+				*/
+			return xScale(Number(d.annee));
 		})
 		.attr("cy", function(d) {
-			return d.valeur;
+			return yScale(Number(d.valeur));
 		})
 		.attr("r",5)
 		.attr("fill","#C02942")
