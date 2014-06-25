@@ -32,8 +32,28 @@ body {
 	text-align: left;
 	}
 	
+#img-telecom{
+	display: block;
+	width: 20vh;
+	margin: 0 auto;
+	margin-bottom: 30px;
+	margin-top: 20px;
+	}
+	
+h1 {
+	text-align: center;
+	text-transform: uppercase;
+	font-family: Century Gothic;
+	font-weight: bold;
+	font-size: 3.7vw;
+	color: #C02942;
+}	
+	
+	
  ul {
- 	list-style-type: none;
+ 	list-style-type: disc;
+	margin-left: 40vw;
+	text-align: bottom;
  	}
 /* Bouton */
 
@@ -42,23 +62,57 @@ body {
 	border: 0px; 
 	Font-family: 'Century Gothic'; 
 	Font-weight: bold;
-	Font-size: 20px; 
+	Font-size: 2vw; 
 	Color: #FFFFFF; 
 	Padding: 10px;   
 	Border-radius: 10px;
 }
+
+#button2D {
+	margin-left:5vw;
+	width: 30vw;
+	margin-right: 30vw;
+	}
+	
+#button3D {
+	width: 30vw;
+	}
+	
+#buttonReturn {
+	position: absolute;
+	width: 13vw;
+	height: 4vw;
+}
+
+#buttonBarChart {
+	margin-left: 18vw;
+	}
+	
+#buttonPieChart {
+	margin-left: 15vw;
+	}
+	
+#buttonScatterplot {
+	margin-left: 17vw;
+	}	
+	
 
 .bouton:hover {
 	background-color: #C02942; 
 	border: 0px; 
 	Font-family: 'Century Gothic'; 
 	Font-weight: bold;
-	Font-size: 20px; 
+	Font-size: 2vw; 
 	Color: #FFFFFF; 
 	Padding: 10px;   
 	Border-radius: 10px;
 }
-	
+
+li {
+	font-size: 0.8vw;
+	color: #999999;
+	}
+
 /* Invisibilité */
 
 a {
@@ -76,8 +130,16 @@ a:hover {
 h3 {
 	font-family: Museo_SLab_500;
 	font-size: 50px;
-	color: #123123;
+	color: #999999;  /*grey */
 	}
+	
+h4 {
+	font-family: Museo_SLab_500;
+	font-size: 1.2vw;
+	color: #999999;
+	margin-left: 40vw;
+	}
+
 
 /* Bar Chart */
 
