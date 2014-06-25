@@ -56,11 +56,7 @@ function addLights() {
 	camera.add(light);
 	light.position.set(LIGHT_X,LIGHT_Y,LIGHT_Z);
 	render();
-		//Statusbar
-		earth_status.transition()
-			.duration(1000)
-			.attr("height", 33)
-			.attr("y", HEIGHT/2-33)
+	updateStatus("earth", 33);
 }	
 	
 var earth;
@@ -76,12 +72,7 @@ function addEarth() {
 	earth = new THREE.Mesh(spGeo,mat2);
 	scene.add(earth);
 	render();
-	
-		//Statusbar
-		earth_status.transition()
-			.duration(1000)
-			.attr("height", 66)
-			.attr("y", HEIGHT/2-66)
+	updateStatus("earth", 66);
 }
 
 /** Adds clouds on Earth **/
@@ -94,13 +85,7 @@ function addClouds() {
 	clouds.scale.set( 1.015, 1.015, 1.015 );
 	scene.add( clouds );
 	render();
-	
-		//Statusbar
-		earth_status.transition()
-			.duration(1000)
-			.attr("height", 100)
-			.attr("y", HEIGHT/2-100)
-	render();
+	updateStatus("earth", 100);
 }
 
 /*************************
@@ -113,6 +98,7 @@ var MAX_ANIMATION_TIME = 60000; // 1 min
 var cubeMat;
 var TOTAL_CHUNKS = 600;
 var chunkSize; // Number of meteorites loaded at the same time
+var meteorMaterial;
 
 /** Calls the meteorite parser, init scales functions, and divide work in chunks **/
 function addData(callback) {
@@ -146,15 +132,86 @@ function addData(callback) {
 			mat3: new THREE.MeshLambertMaterial({color: 0x000000,opacity:0.6, emissive:0xffffff})
 		}
 		
+		var meteorTexture = THREE.ImageUtils.loadTexture( "image/stone-meteorite-seamless-texture.jpg" );
+			meteorMaterial =  new THREE.MeshPhongMaterial( {
+			map: meteorTexture,
+			shininess: 0.2 } );	
+		
+		//prepareMaterials();
 		prepareNextChunk();
 		
 	}, load_status, parse_status)
+}
+
+var fireballMaterial;
+
+function prepareMaterials(){
+// base image texture for mesh
+	var lavaTexture = new THREE.ImageUtils.loadTexture( 'image/lava.jpg');
+	lavaTexture.wrapS = lavaTexture.wrapT = THREE.RepeatWrapping; 
+	// multiplier for distortion speed 		
+	var baseSpeed = 0.01;
+	// number of times to repeat texture in each direction
+	var repeatS = repeatT = 4.0;
+	
+	// texture used to generate "randomness", distort all other textures
+	var noiseTexture = new THREE.ImageUtils.loadTexture( 'image/cloud.png' );
+	noiseTexture.wrapS = noiseTexture.wrapT = THREE.RepeatWrapping; 
+	// magnitude of noise effect
+	var noiseScale = 0.2;
+	
+	// texture to additively blend with base image texture
+	var blendTexture = new THREE.ImageUtils.loadTexture( 'image/lava.jpg' );
+	blendTexture.wrapS = blendTexture.wrapT = THREE.RepeatWrapping; 
+	// multiplier for distortion speed 
+	var blendSpeed = 0.01;
+	// adjust lightness/darkness of blended texture
+	var blendOffset = 0.25;
+
+	// texture to determine normal displacement
+	var bumpTexture = noiseTexture;
+	bumpTexture.wrapS = bumpTexture.wrapT = THREE.RepeatWrapping; 
+	// multiplier for distortion speed 		
+	var bumpSpeed   = 0.03;
+	// magnitude of normal displacement
+	var bumpScale   = 20.0;
+	
+	// use "this." to create global object
+	this.customUniforms = {
+		baseTexture: 	{ type: "t", value: lavaTexture },
+		baseSpeed:		{ type: "f", value: baseSpeed },
+		repeatS:		{ type: "f", value: repeatS },
+		repeatT:		{ type: "f", value: repeatT },
+		noiseTexture:	{ type: "t", value: noiseTexture },
+		noiseScale:		{ type: "f", value: noiseScale },
+		blendTexture:	{ type: "t", value: blendTexture },
+		blendSpeed: 	{ type: "f", value: blendSpeed },
+		blendOffset: 	{ type: "f", value: blendOffset },
+		bumpTexture:	{ type: "t", value: bumpTexture },
+		bumpSpeed: 		{ type: "f", value: bumpSpeed },
+		bumpScale: 		{ type: "f", value: bumpScale },
+		alpha: 			{ type: "f", value: 1.0 },
+		time: 			{ type: "f", value: 1.0 }
+	};
+	
+	// create custom material from the shader code above
+	//   that is within specially labeled script tags
+	fireballMaterial = new THREE.ShaderMaterial( 
+	{
+	    uniforms: customUniforms,
+		vertexShader:   document.getElementById( 'vertexShader'   ).textContent,
+		fragmentShader: document.getElementById( 'fragmentShader' ).textContent
+	}   );
 }
 
 var numChunk = 0;
 var meteorites = new Array();
 var preparedChunks = 0;
 var allDataRendered = false;
+
+function createMeteorMesh(){
+
+}
 
 /** For a chunk, prepares the cube VBOs for each meteorite **/
 function prepareNextChunk(){
@@ -177,19 +234,21 @@ function prepareNextChunk(){
 		var lat = dataset[i].latitude;
 		var lng = dataset[i].longitude;
 		var value = dataset[i].mass;
-		var material = getMaterialForType(dataset[i].type);
+		//var material = getMaterialForType(dataset[i].type);
 
 		// calculate the position where we need to start the cube
 		//(The Earth is 600 radius)
 		//Initial height of 600 then falling down to 2
-		var position = mapLatLongToVector3(lat, lng, 600, 600); //falling down to (..., 600, 2)
+		var position = mapLatLongToVector3(lat, lng, 600, 600+Math.random()*30); //falling down to (..., 600, 2)
 
 		// create the cube
 		//TODO : choose material depending on meteorite type
-		var cube = new THREE.Mesh(new THREE.BoxGeometry(5,5,1+Math.log(value+0.1),1,1,1),material);
-		
+		//var cube = new THREE.Mesh(new THREE.BoxGeometry(5,5,1+Math.log(value+0.1),1,1,1),meteorMaterial);
+		cube = new THREE.Mesh(new THREE.SphereGeometry(7,6,5), meteorMaterial);
 		cube.position = position;
 		cube.lookAt( new THREE.Vector3(0,0,0) );
+		
+		var object = new THREE.Object3D
 		
 		//Add the meteorite to the processing Array
 		meteorites.push({
@@ -206,13 +265,8 @@ function prepareNextChunk(){
 		scene.add(cube);
 
 		// At first, hide the object
-		//TODO
-		
+		//...Or not ?
 	}
-	
-	//currentMesh = new THREE.Mesh(currentGeom);
-	//updateNeeded(currentMesh);	//Tell the mesh its geometry is going to be updated
-	//scene.add(currentMesh);
 	
 	if(preparedChunks === 0){
 		startTime = date.getTime();
@@ -229,7 +283,7 @@ function getMaterialForType(nameOfMeteorType){
 
 var indexDoneFalling = 0;
 var currentTime;
-var TIME_TO_FALL = 400;//in ms for now
+var TIME_TO_FALL = 800;//in ms for now
 
 /** Updates every meteorite of a chunk. Assumes they are sorted by order of appearance
  ** Let's make every meteorite from the currentChunk fall, 
@@ -242,7 +296,7 @@ function updateMeteors(delta){
 			//If he meteorite is falling
 			if(currentTime < meteorites[i].time + TIME_TO_FALL  ){
 				meteorites[i].cube.position = mapLatLongToVector3(meteorites[i].lat, meteorites[i].lng, 600, 
-					600-Math.round((595*currentTime/(meteorites[i].time + TIME_TO_FALL))));
+					600-Math.round((595*(currentTime-meteorites[i].time)/TIME_TO_FALL)));
 				//console.log("meteorite " + i + " has fallen to " + 600-Math.round((5*currentTime/(meteorites[i].time + TIME_TO_FALL))))
 			} // If the meteorite has crashed
 			else{
@@ -266,7 +320,7 @@ var compactedGeometry;
 var compactedMesh;
 var lastIndexMerged = 0;
 
-function compactGeometry(){
+function compactGeometry(keepOldMeteors){
 
 	//Don't compact if it has already been done
 	if(lastIndexMerged === indexDoneFalling){
@@ -275,16 +329,22 @@ function compactGeometry(){
 	// the geometry that will contain all our crashed meteorites
 	compactedGeometry = new THREE.Geometry();
 	for(var i=lastIndexMerged; i<= indexDoneFalling; i++){
-		THREE.GeometryUtils.merge(compactedGeometry, meteorites[i].cube);
+		if(keepOldMeteors){
+			THREE.GeometryUtils.merge(compactedGeometry, meteorites[i].cube);
+		}
 		scene.remove(meteorites[i].cube);
+		meteorites[i].cube.geometry.dispose();
 	}
 	
-	//TODO : find a way to keep colors !
-	var mat = new THREE.MeshLambertMaterial({color: 0x000000,opacity:0.6, emissive:0xffffff})
+	if(keepOldMeteors){
+		//TODO : find a way to keep colors !
+		var mat = new THREE.MeshLambertMaterial({color: 0x000000,opacity:0.6, emissive:0xffffff})
+		
+		compactedMesh = new THREE.Mesh(compactedGeometry, mat);
+		
+		scene.add(compactedMesh);
+	}
 	
-	compactedMesh = new THREE.Mesh(compactedGeometry, mat);
-	
-	scene.add(compactedMesh);
 	lastIndexMerged = indexDoneFalling;
 	
 	console.log("Compacted " + lastIndexMerged + " meteorites meshes");
@@ -308,7 +368,7 @@ function update() {
 	var delta = date.getTime() - lastFrameTime;
 	lastFrameTime = date.getTime();
 	
-	if(canUpdateMeteors){
+	if(canUpdateMeteors && play){
 		if(prepare_next_chunk_bool){
 			prepareNextChunk()
 			prepare_next_chunk_bool = false;
@@ -321,10 +381,10 @@ function render() {
     renderer.render(scene, camera);
 }
 
-/** Argument is a mesh or geometry ?
+/** arg1 is a mesh or geometry ?
  ** ephemere -> if true, only one update is needed
  **/
-function updateNeeded(mesh, ephemere){
+function updateNeeded(arg1, ephemere){
 	// set the geometry to dynamic
 	// so that it allow updates
 	mesh.geometry.dynamic = true;
@@ -351,7 +411,9 @@ function updateNoLongerNeeded(object){
 function gameLoop(){
     update();
     render();
-	requestAnimationFrame(gameLoop)
+	if(!stop){
+		requestAnimationFrame(gameLoop)
+	}
 }
 
 // convert the positions from a lat, lon to a position on a sphere.
@@ -370,12 +432,19 @@ function mapLatLongToVector3(lat, lon, radius, heigth) {
 	User related stuff
 	*************************/
 
-function stop(){
+var stop = false;
+var play = true;	
 
+function pause(){
+	play = !play;
+}
+	
+function stop(){
+	stop = true;
 }
 
 function start(){
-
+	stop = false;
 }
 
 /** When a meteorite has Crashed, 
@@ -434,11 +503,19 @@ function updateStatus(statusName, percentage){
 		case "parse":
 			statusBar = parse_status;
 			break;
+		case "earth":
+			statusBar = earth_status;
+			break;
+		case "meteors":
+			statusBar = meteors_status;
+			break;
 		default:
 			break;
 	}
 	var amount = Math.round(percentage);
 	statusBar
+		.transition()
+		.duration(1000)
 		.attr("y", HEIGHT/2-amount)
 		.attr("height", amount)
 }
