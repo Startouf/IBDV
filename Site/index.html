@@ -44,86 +44,104 @@
 				}
 
 
-			function showBars() {
-					
-				var dataset1 = [ 5, 10, 15, 20, 25 ];
-				var dataset2 = [ 25, 7, 5, 26, 11, 25, 7, 5, 26, 11 ];
-				var dataset3 = [];                      
-					for (var i = 0; i < 40; i++) {          
-						var newNumber = Math.random() * 30;  
-  						dataset3.push(newNumber);  
-					}
-					
-				d3.select("body").append("p")
-					.attr("align","center")
-					.style("Font-family","'Museo_SLab_300'")
-					.style("Font-size","60px")
-					.style("color","#ECD078")
-					.text("Bar Chart Test 1");
-		
-				d3.select("body").append("p")
-					.attr("align","center")
-					.selectAll("div")
-					    .data(dataset1)
-					    .enter()
-					    .append("div")
-					    .attr("class", function(d) {
-					    		switch (d) {
-					    			case 5: return "bar1";
-					    			case 10: return "bar2";
-					    			case 15: return "bar3";
-					    			case 20: return "bar4";
-					    			case 25: return "bar5";
-					    		}
-					    })
-					    .style("height", function(d) {
-						    return d*5 + "px";   
-						});
-					
-				d3.select("body").append("p")
-					.attr("align","center")
-					.style("Font-family","'Museo_SLab_300'")
-					.style("Font-size","60px")
-					.style("color","#ECD078")
-					.text("Bar Chart Test 2");
-					
-				d3.select("body").append("p")
-					.attr("align","center")
-					.selectAll("div")
-					    .data(dataset2)
-					    .enter()
-					    .append("div")
-					    .attr("class", "bar5")
-					    .style("height", function(d) {
-						    return d*5 + "px";   
-						});
-					
-				d3.select("body").append("p")
-					.attr("align","center")
-					.style("Font-family","'Museo_SLab_300'")
-					.style("Font-size","60px")
-					.style("color","#ECD078")
-					.text("Bar Chart Test Random");
-					
-				d3.select("body").append("p")
-					.attr("align","center")	
-					.selectAll("div")
-					    .data(dataset3)
-					    .enter()
-					    .append("div")
-					    .attr("class", "bar3")
-					    .style("height", function(d) {
-						    return d*5 + "px";   
-						});
-						
+			function showBarChart() {
+				
+				document.getElementById('buttonBarChart').style.background= "#C02942";
+				document.getElementById('buttonPieChart').style.background= "#ECD078";
+				document.getElementById('buttonScatterplot').style.background= "#ECD078";
+				
+				buttonBarChart.disabled= true;
+				buttonPieChart.disabled= false;
+				buttonScatterplot.disabled= false;
+				
+			d3.selectAll("#titlePie1").style("display", "none");
+			d3.selectAll("#titlePie2").style("display", "none");	
+			d3.selectAll("svg").remove();
+							
+var dataset = [];                        //Initialize empty array
+for (var i = 0; i < 15; i++) {           //Loop 25 times
+    var newNumber = Math.round((Math.random() * 27)+3);  //New random number (0-30)
+    dataset.push(newNumber);             //Add new number to array
+}
+
+
+
+d3.select("body").append("p").attr("id", "titleBar").style("font-size", "27px").style("margin-left","15vw").text("Bar-chart animated visualization with SVG").style("font-size","2vw");
+
+var w2 = 1000;
+var h2 = 300;
+var barPadding = 5;
+
+var svg2 = d3.select("body")
+            .append("svg")
+            .attr("width", w2)
+            .attr("height", h2)
+			.attr("align", "center");
+			
+
+ svg2.selectAll("rect")
+			.data(dataset)
+			.enter()
+			.append("rect")
+			.attr("x", function(d, i) {
+			   		return i * (w2 / dataset.length);
+			   })
+			.attr("y", function(d) {
+    return h2 - 6*d; 
+})
+			.attr("width", w2 / dataset.length - barPadding)
+			.attr("height", 0)
+			.attr("fill", function(d) {
+    return "rgb(0, 0, "  + (d * 10) + ")";
+});
+
+	
+	svg2.selectAll("text")
+			   .data(dataset)
+			   .enter()
+			   .append("text")
+			   .text(function(d) {
+			   		return d;
+			   })
+			   .attr("text-anchor", "middle")
+			   .attr("x", function(d, i) {
+			   		return i * (w2 / dataset.length) + (w2 / dataset.length - barPadding) / 2;
+			   })
+			   .attr("y", function(d) {
+			   		return h2  - 6*d + 14;
+			   })
+			   .attr("font-family", "sans-serif")
+			   .attr("font-size", "13px")
+			   .attr("font-weight", "bold")
+			   .attr("fill", "white");
+			   
+/* Animation */			
+	svg2.selectAll("rect")
+		.transition()
+		.duration(1000)
+		.attr("id","Bar")
+		.attr("height", function(d) {
+    return (6*d);
+});
 						
 				}		
 
 			function showPieChart() {
-			
 			document.getElementById('buttonPieChart').style.background= "#C02942";
+			document.getElementById('buttonBarChart').style.background= "#ECD078";
+			document.getElementById('buttonScatterplot').style.background= "#ECD078";
+			
+			buttonPieChart.disabled= true;
+			buttonBarChart.disabled= false;
+			buttonScatterplot.disabled= false;
+			
+			d3.selectAll("#titleBar").style("display", "none");
+			d3.selectAll("svg").remove();
+			
+			
 			
 			d3.select("body").append("p")
+					.attr("id","titlePie1")
 					.attr("align","center")
 					.style("Text-transform","uppercase")
 					.style("Font-family","'Century Gothic'")
@@ -132,6 +150,7 @@
 					.style("color","#C02942")
 					.text("Example of pie chart");
 			d3.select("body").append("p")
+					.attr("id","titlePie2")
 					.attr("align","center")
 					.style("Font-family","'Century Gothic'")
 					.style("Font-weight","bold")
@@ -142,8 +161,8 @@
 				
 				// variables
 				
-				var w = 1000;                     
-			    var h = 1000;                            
+				var w = 2000;                     
+			    var h = 2000;                            
 			    var r = 500;      
 			    var Padding = 1;                  
 			    var color = d3.scale.ordinal()
@@ -243,11 +262,21 @@
 				}  
 }	
 				
+			function showScatterplot() {
+			
+			buttonBarChart.disabled= false;
+			buttonPieChart.disabled= false;
+			buttonScatterplot.disabled= true;
+}			
 				
 			function returnHomePage() {
 			
+			buttonBarChart.disabled= false;
+			buttonPieChart.disabled= false;
+			buttonScatterplot.disabled= false;
 			window.location.reload(); 
 			}
+			
 		
 			
 		</script>
@@ -261,11 +290,11 @@
 				
 		<button class="bouton" id="button3D" onclick="click3D()">3D Data Visualization</button>
 		
-		<button class="bouton" id="buttonBarChart" onclick="barChart()"  style="display:none" >Bar chart</button>
+		<button class="bouton" id="buttonBarChart" onclick="showBarChart()"  style="display:none" >Bar chart</button>
 		
 		<button class="bouton" id="buttonPieChart" onclick="showPieChart()"  style="display:none" >Pie Chart</button>
 		
-		<button class="bouton" id="buttonScatterplot" onclick="scatterplot()"  style="display:none" >Scatterplot</button>
+		<button class="bouton" id="buttonScatterplot" onclick="showScatterplot()"  style="display:none" >Scatterplot</button>
 		
 
 		</br> </br>

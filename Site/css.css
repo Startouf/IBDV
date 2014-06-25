@@ -25,7 +25,8 @@ body {
 	font-family: Museo_SLab_300;
 	font-size: 20px;
 	color: #999999;
-	background: url(Resources/bg.jpg) repeat; 
+	background: url(Resources/bg.jpg) repeat;
+	/* background-color: #000000; */
 	background-position: top-left;
 	width: 100%;
 	margin: 0%;
@@ -55,6 +56,15 @@ h1 {
 	margin-left: 40vw;
 	text-align: bottom;
  	}
+	
+div.bar {
+    display: inline-block;
+    width: 20px;
+    height: 75px;   /* We'll override this later */
+    background-color: teal;
+}	
+	
+	
 /* Bouton */
 
 .bouton {
@@ -82,6 +92,7 @@ h1 {
 	position: absolute;
 	width: 13vw;
 	height: 4vw;
+	margin-left: 2vw;
 }
 
 #buttonBarChart {
