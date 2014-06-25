@@ -111,6 +111,14 @@ function showSvg() {
 		.attr("class", "axis")
 		.attr("transform", "translate(" + scatterPadding + ",0)")
 		.call(yAxis);
+
+	d3.select("body")
+		.append("p")
+		.attr("align","center")
+		.style("Font-family","'Museo_SLab_300'")
+		.style("Font-size","20px")
+		.style("color","#ECD078")
+		.text("Evolution of the GNI (USD) per capita in France");		
 }
 
 // function hideButton
