@@ -144,12 +144,12 @@ function loadResources(){
 	shockwaveGeometry = new THREE.SphereGeometry(1,20,20)
 		
 	meteorMeshes = {
-		iron: getMeteorMeshFromTexture("image/iron-meteorite-semaless-background2.jpg"),
-		stone: getMeteorMeshFromTexture("image/stone-meteorite-seamless-texture.jpg"),
-		chondrite: getMeteorMeshFromTexture("image/meteorite-chondrite-natural-seamless-background.jpg"),
-		wildmanstatte: getMeteorMeshFromTexture("image/Widmanstatte-pattern-meteor-background.jpg"),
-		moon_rock: getMeteorMeshFromTexture("image/moon-rock-bw-seamless-background-texture.jpg"),
-		moon_rock_2: getMeteorMeshFromTexture("image/moon-rock-seamless-background.jpg"),
+		iron: loadMeteorMeshFromTexture("image/iron-meteorite-semaless-background2.jpg"),
+		stone: loadMeteorMeshFromTexture("image/stone-meteorite-seamless-texture.jpg"),
+		chondrite: loadMeteorMeshFromTexture("image/meteorite-chondrite-natural-seamless-background.jpg"),
+		wildmanstatte: loadMeteorMeshFromTexture("image/Widmanstatte-pattern-meteor-background.jpg"),
+		moon_rock: loadMeteorMeshFromTexture("image/moon-rock-bw-seamless-background-texture.jpg"),
+		moon_rock_2: loadMeteorMeshFromTexture("image/moon-rock-seamless-background.jpg"),
 		something: function(){
 			return (this.stone);
 		}
@@ -169,7 +169,21 @@ function loadResources(){
 	}
 }
 
-function getMeteorMeshFromTexture(file){
+/*** Handle (every?) meteor type ***/
+function getMeshForType(nameOfMeteorType){
+	switch(nameOfMeteorType.substring(0,1)){
+		case "L":
+			return meteorMeshes.iron;
+		case "H":
+			return meteorMeshes.chondrite
+		case "Iron":
+			return meteorMeshes.moon_rock;
+		default:
+			return meteorMeshes.something();
+	}
+}
+
+function loadMeteorMeshFromTexture(file){
 	var texture = THREE.ImageUtils.loadTexture(file);
 	var mat = new THREE.MeshPhongMaterial( {
 		map: texture,
@@ -223,7 +237,7 @@ function prepareChunk(index){
 		//Note : clone() only copies the reference of geom and material
 		//proof here https://github.com/mrdoob/three.js/issues/4796
 		//TODO : create one mesh per different texture
-		var meteorObject = meteorMeshes.iron.clone();
+		var meteorObject = getMeshForType(dataset[i].type).clone();
 		var scale = Math.log(value+1);
 		if(scale <= 3){
 			scale = 3;
@@ -258,11 +272,6 @@ function prepareChunk(index){
 		canUpdateMeteors = true;
 	}
 	lastPreparedChunk = numChunk;
-}
-
-/*** Handle every meteor type ***/
-function getMaterialForType(nameOfMeteorType){
-	return meteorMat.mat1;
 }
 
 var indexDoneFalling = 0;

@@ -21,7 +21,7 @@ function parseMeteorsData(callback2, statusbarLoaded, statusbarParse) {
 		data.forEach(function(d,i){
 			dataset.push({
 				place: d.place,
-				type: d.type_of_meteorite,
+				type: d.type_of_meteorite ? d.type_of_meteorite : "Unknown",
 				mass: +d.mass_g,
 				found: d.fell_found,	//Si on a trouvé l'impact ?
 				//Some meteorites don't have a year : pick one randomly (only 500/35k don't have one), range : -2500 to 2013
