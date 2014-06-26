@@ -34,14 +34,16 @@ var undefined;
 var controlOrbit; //Orbitcontrols
 
 function initThreejs() {
-	renderer = new THREE.WebGLRenderer();
-	renderer.setClearColor(0x000000);
+	renderer = new THREE.WebGLRenderer({alpha: true});
+	renderer.setClearColor(0x000000,0);
 	renderer.setSize(WIDTH_4DVisu, HEIGHT_4DVisu);
 	camera = new THREE.PerspectiveCamera(VIEW_ANGLE, ASPECT, NEAR, FAR);
 	camera.position.set(0, 0, 1800);
 	
 	controlOrbit = new THREE.OrbitControls(camera,renderer.domElement);
     controlOrbit.addEventListener('change', render);
+	controlOrbit.minDistance = 650;
+	controlOrbit.maxDistance = Infinity;
 	
 	scene =  new THREE.Scene();
 	camera.lookAt(scene.position);
@@ -115,7 +117,9 @@ function addClouds() {
 }
 
 /** Adds the galaxy **/
+//REMOVED : added as 
 function addGalaxy() {
+
  	var sphereGalaxy  = new THREE.SphereGeometry(1500, 50, 50);
 	var materialGalaxy  = new THREE.MeshBasicMaterial();
 	materialGalaxy.map   = THREE.ImageUtils.loadTexture('image/galaxy.png',{},function() {
@@ -127,6 +131,7 @@ function addGalaxy() {
 	scene.add(galaxyMesh);
 	
 	renderer.render(scene, camera);
+	
 }
 	
 /*************************
