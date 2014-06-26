@@ -6,11 +6,11 @@ var whereToAppendHottenessSVG = "#visualization";
 var RADIUS_BEFORE_ANIM = 100, RADIUS_AFTER_ANIM = 175;
 
 /*
- * If you want to SHOW it : call initHottenessSVG()
- * If you want to remove the SVG, call 
+ * If you want to SHOW it : call showHottenessSVG()
+ * If you want to remove the SVG, call hideHottenessSVG
+ */
 
-
-/**** If you want to change the design of the edge of the circles ***/
+/**** If you want to change the design of the edge of the circles, modify these vars : ***/
 var CIRCLE_BCKG_COLOR = "#666666";
 var CIRCLE_BCKG_ALPHA = 0.0;
 var CIRCLE_STRK_COLOR = "#dddddd";
@@ -20,7 +20,7 @@ var CIRCLE_STRK_WIDTH = "5px";
 
 
 /**** Circle showing 2D data with n+1 params **/
-function init() {
+function showHottenessSVG() {
 	initData();
 	setupTooltip();
 	setupHighlighters();

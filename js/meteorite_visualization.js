@@ -1,5 +1,5 @@
-var WIDTH = 800, HEIGHT = 600;
-var VIEW_ANGLE = 45, ASPECT = WIDTH / HEIGHT, NEAR = 0.1, FAR = 10000;
+var WIDTH_4DVisu = 800, HEIGHT_4DVisu = 400;
+var VIEW_ANGLE = 45, ASPECT = WIDTH_4DVisu / HEIGHT_4DVisu, NEAR = 0.1, FAR = 10000;
 var $container = $('#threejs');
 
 var renderer;
@@ -13,19 +13,16 @@ var status, earth_status, load_status, parse_status, meteors_status;
 /** Load after DOM generated **/
 $(function(){
 	addStatusBars();
-	var debug = $("#stop");
-	$("#stop").click(function(){ stopAnim(); });
-	$("#start").click(function(){ startAnim(); });
-	init();
+	addControlButtons();
+	init4DVisu();
 })
 
-function init() {
+function init4DVisu() {
 	renderer = new THREE.WebGLRenderer();
 	renderer.setClearColor(0x000000);
-	renderer.setSize(WIDTH, HEIGHT);
+	renderer.setSize(WIDTH_4DVisu, HEIGHT_4DVisu);
 	camera = new THREE.PerspectiveCamera(VIEW_ANGLE, ASPECT, NEAR, FAR);
 	camera.position.set(0, 0, 1800);
-	var controls;
 	
 	controls = new THREE.OrbitControls(camera,renderer.domElement);
     controls.addEventListener('change', render);
@@ -36,6 +33,7 @@ function init() {
 	
 	$("#threejs").append( renderer.domElement );
 	setTimeout(function(){
+		addGalaxy();
 		addLights();
 		addEarth();
 		addClouds();
@@ -97,6 +95,21 @@ function addClouds() {
 	updateStatus("earth", 100);
 }
 
+/** Adds the galaxy **/
+function addGalaxy() {
+ 	var sphereGalaxy  = new THREE.SphereGeometry(1500, 50, 50);
+	var materialGalaxy  = new THREE.MeshBasicMaterial();
+	materialGalaxy.map   = THREE.ImageUtils.loadTexture('image/galaxy.png',{},function() {
+			renderer.render(scene,camera)
+		});
+	materialGalaxy.side  = THREE.BackSide;
+	materialGalaxy.needsUpdate=true;
+	var galaxyMesh  = new THREE.Mesh(sphereGalaxy, materialGalaxy);
+	scene.add(galaxyMesh);
+	
+	renderer.render(scene, camera);
+}
+	
 /*************************
 	Data Loading, 
 	Object Generation
@@ -270,7 +283,7 @@ function prepareChunk(index){
 	
 	
 	
-	if(lastPreparedChunk === 0 || (index !== undefined)){
+	if(numChunk === 0 || (index !== undefined)){
 		currentTime = (index ? index : 0)*SHOOT_INTERVAL + TIME_TO_FALL;
 		canUpdateMeteors = true;
 	}
@@ -397,15 +410,6 @@ var lastFrameTime = date.getTime();
 var prepare_next_chunk_bool;
 
 function update() {
-	/* Earth revolves
-	earth.rotation.y += 0.005;
-	clouds.rotation.y += 0.005;
-	if(total){
-		total.rotation.y += 0.005;
-	}
-	//TODO : move all the meteors
-	*/
-	
 	date = new Date();
 	var delta = date.getTime() - lastFrameTime;
 	lastFrameTime = date.getTime();
@@ -460,7 +464,8 @@ function updateNoLongerNeeded(object){
 function gameLoop(){
     update();
     render();
-	requestAnimationFrame(gameLoop)
+	requestAnimationFrame(gameLoop);
+	controls.update();
 }
 
 // convert the positions from a lat, lon to a position on a sphere.
@@ -480,7 +485,7 @@ function mapLatLongToVector3(lat, lon, radius, heigth) {
 	*************************/
 
 var stop = false;
-var play = true;	
+var play = false;	
 
 function playPause(){
 	play = !play;
@@ -530,39 +535,80 @@ var status, earth_status, load_status, parse_status, meteors_status;
 function addStatusBars(){
 	status = d3.select("#status").append("svg")
 		.attr("width", 200)  
-		.attr("height", HEIGHT)
+		.attr("height", HEIGHT_4DVisu)
 	earth_status = d3.select("#status").append("rect")
 		.attr("x", 0)
-		.attr("y", HEIGHT/2)
+		.attr("y", HEIGHT_4DVisu/2)
 		.attr("width", 20)
 		.attr("height", 0)
 		.attr("fill", function() {
-			return "rgb(30, 30, 200)";
+			return "rgba(30, 30, 200, 1)";
 		})
 	load_status = d3.select("#status").append("rect")
 		.attr("x", 22)
-		.attr("y", HEIGHT/2)
+		.attr("y", HEIGHT_4DVisu/2)
 		.attr("width", 20)
 		.attr("height", 0)
 		.attr("fill", function() {
-			return "rgb(200, 70, 20)";
+			return "rgba(200, 70, 20, 1)";
 		})
 	parse_status = d3.select("#status").append("rect")
 		.attr("x", 44)
-		.attr("y", HEIGHT/2)
+		.attr("y", HEIGHT_4DVisu/2)
 		.attr("width", 20)
 		.attr("height", 0)
 		.attr("fill", function() {
-			return "rgb(200, 70, 20)";
+			return "rgba(200, 70, 20, 1)";
 		})
 	meteors_status = d3.select("#status").append("rect")
 		.attr("x", 66)
-		.attr("y", HEIGHT/2)
+		.attr("y", HEIGHT_4DVisu/2)
 		.attr("width", 20)
 		.attr("height", 0)
 		.attr("fill", function() {
-			return "rgb(200, 70, 20)";
+			return "rgba(200, 70, 20, 1)";
 		});
+}
+
+function addControlButtons(){
+	var controls = d3.select("#controls");
+	controls.append("button")
+		.attr("id", "play")
+		.text("Play")
+		.on("click",function(){ playPause(); })
+	controls.append("button")
+		.attr("id", "pause")
+		.text("Stop")
+		.on("click",function(){ stopAnim(); });
+	controls.append("button")
+		.attr("id", "gotoYear")
+		.text("Goto year :")
+		.on("click",function(){ startAnim(); });
+	controls.append("input")
+		.attr("type", "number")
+		.attr("min", -2500)
+		.attr("max", 2013)
+		.attr("step", 1)
+		.attr("value", 42)
+		.attr("id", "selectedYear")
+	var filter = controls.append("div")
+		.attr("id", "filters")
+	filter.append("button")
+		.attr("id", "filter")
+		.text("Show only meteorites falling in this area :")
+		.on("click", function(){ return;})
+	filter.append("input")
+		.attr("id", "latMin")
+		.attr("placeholder", "Latitude min")
+	filter.append("input")
+		.attr("id", "latMax")
+		.attr("placeholder", "Latitude max")
+	filter.append("input")
+		.attr("id", "lngMin")
+		.attr("placeholder", "Longitude min")
+	filter.append("input")
+		.attr("id", "lngMax")
+		.attr("placeholder", "Longitude max")
 }
 
 function updateStatus(statusName, percentage){
@@ -587,6 +633,6 @@ function updateStatus(statusName, percentage){
 	statusBar
 		.transition()
 		.duration(1000)
-		.attr("y", HEIGHT/2-amount)
+		.attr("y", HEIGHT_4DVisu/2-amount)
 		.attr("height", amount)
 }
