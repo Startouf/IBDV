@@ -1,36 +1,6 @@
-body {
-  font: 12px sans-serif;
-  background: black;
-  color: white
-}
-
-circle{
+circle.inner, circle.outer{
 	cursor : pointer;
 	z-index: 5;
-}
-
-text{
-	z-index: 1;
-	color: white;
-}
-
-.axis path,
-.axis line {
-  fill: none;
-  stroke: #000;
-  shape-rendering: crispEdges;
-}
-
-.bar {
-  fill: orange;
-}
-
-.bar:hover {
-  fill: orangered ;
-}
-
-.x.axis path {
-  display: none;
 }
 
 .tooltip {

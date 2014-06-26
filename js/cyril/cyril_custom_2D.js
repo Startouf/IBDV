@@ -1,8 +1,22 @@
 /******* Global Params ******/
+
 /*** For Edouard ***/
 
-var whereToAppendCyrilSVG = "#visualization";
-var CIRCLE_BCKG_COLOR = "#dddddd";
+var whereToAppendHottenessSVG = "#visualization";
+var RADIUS_BEFORE_ANIM = 100, RADIUS_AFTER_ANIM = 175;
+
+/*
+ * If you want to SHOW it : call initHottenessSVG()
+ * If you want to remove the SVG, call 
+
+
+/**** If you want to change the design of the edge of the circles ***/
+var CIRCLE_BCKG_COLOR = "#666666";
+var CIRCLE_BCKG_ALPHA = 0.0;
+var CIRCLE_STRK_COLOR = "#dddddd";
+var CIRCLE_STRK_ALPHA = 0.5;
+var CIRCLE_STRK_WIDTH = "5px";
+
 
 
 /**** Circle showing 2D data with n+1 params **/
@@ -126,70 +140,68 @@ function scale(){
  ** Setup Data Visualization **
  *******************************/
  
- var radiusBefore = 100, radiusAfter = 175;
- 
 function showData(){
 	//svg params
 	var offsets;
 
-	svg = d3.select(whereToAppendCyrilSVG)
+	svgHotteness = d3.select(whereToAppendHottenessSVG)
 		.append("svg")
 		.attr("width", width)   // <-- Here
 		.attr("height", height); // <-- and here!
-	svg.selectAll("text.data")
+	svgHotteness.selectAll("text.data")
 		.data(dataset)
 		.enter()
 		.append("text")
 			//.text(function(d){ return d[0]; })	TODO : restrain text size
 			.attr("x", function(d,i) {
-				offsets = getOffsets(i, radiusBefore);
+				offsets = getOffsets(i, RADIUS_BEFORE_ANIM);
 				return offsets.x - 30;
 			})
 			.attr("y", function(d,i) {
-				offsets = getOffsets(i, radiusBefore);
+				offsets = getOffsets(i, RADIUS_BEFORE_ANIM);
 				return offsets.y + rScale(hotteness(d) + 15);
 			})
-	svg.selectAll("circle.outer")
+	svgHotteness.selectAll("circle.outer")
 	   .data(dataset)
 	   .enter()
 	   .append("circle")
 			.classed("outer", true)
 			.attr("cx", function(d,i) {
-				offsets = getOffsets(i, radiusBefore);
+				offsets = getOffsets(i, RADIUS_BEFORE_ANIM);
 				return offsets.x;
 			})
 			.attr("cy", function(d,i) {
-				offsets = getOffsets(i, radiusBefore);
+				offsets = getOffsets(i, RADIUS_BEFORE_ANIM);
 				return offsets.y;
 			})
 			.attr("r", function(d){
 				return rScale(hotteness(d)+5);
 			})
 			.attr("fill", CIRCLE_BCKG_COLOR)
-			.attr("fill-opacity", 1)
-	svg.selectAll("circle.outer")
+			.attr("fill-opacity", CIRCLE_BCKG_ALPHA)
+	svgHotteness.selectAll("circle.outer")
 			.transition()
 			.duration(2000)
 			.attr("cx", function(d,i) {
-				offsets = getOffsets(i, radiusAfter);
+				offsets = getOffsets(i, RADIUS_AFTER_ANIM);
 				return offsets.x;
 			})
 			.attr("cy", function(d,i) {
-				offsets = getOffsets(i, radiusAfter);
+				offsets = getOffsets(i, RADIUS_AFTER_ANIM);
 				return offsets.y;
 			})
 
-	svg.selectAll("circle.inner")
+	svgHotteness.selectAll("circle.inner")
 	   .data(dataset)
 	   .enter()
 	   .append("circle")
 			.classed("inner", true)
 			.attr("cx", function(d,i) {
-				offsets = getOffsets(i, radiusBefore);
+				offsets = getOffsets(i, RADIUS_BEFORE_ANIM);
 				return offsets.x;
 			})
 			.attr("cy", function(d,i) {
-				offsets = getOffsets(i, radiusBefore);
+				offsets = getOffsets(i, RADIUS_BEFORE_ANIM);
 				return offsets.y;
 			})
 			.attr("r", function(d){
@@ -199,9 +211,9 @@ function showData(){
 				var color = getColor(d);
 				return(color.rgb);
 			})
-			.attr("stroke", "#aaaaaa")
-			.attr("stroke-width", "4px")
-			.attr("stroke-opacity", .5)
+			.attr("stroke", CIRCLE_STRK_COLOR)
+			.attr("stroke-width", CIRCLE_STRK_WIDTH)
+			.attr("stroke-opacity", CIRCLE_STRK_ALPHA)
 			.on('mouseover', function(d,i){
 				var selection = d3.select(this);
 				var rr = Number(selection.attr("r"));
@@ -214,21 +226,21 @@ function showData(){
 				hideHighlighters(0,0,0,0,false);
 				hideTooltip();
 				})
-	svg.selectAll("circle.inner")
+	svgHotteness.selectAll("circle.inner")
 	   .transition()
 	   .duration(2000)
 	   .delay(300)
 			.attr("cx", function(d,i) {
-				offsets = getOffsets(i, radiusAfter);
+				offsets = getOffsets(i, RADIUS_AFTER_ANIM);
 				return offsets.x;
 			})
 			.attr("cy", function(d,i) {
-				offsets = getOffsets(i, radiusAfter);
+				offsets = getOffsets(i, RADIUS_AFTER_ANIM);
 				return offsets.y;
 			})
 }
 
-function hideData(){
+function hideHottenessSVG(){
 	d3.select("svg").remove();
 }
 
@@ -237,7 +249,7 @@ function hideData(){
  **************************/
 var tooltip;
 var tooltip_w = 200;
-var tooltip_h = 150;
+var tooltip_h = 210;
 
 function setupTooltip(){
 	tooltip = d3.select("#visualization").append("div")
@@ -283,7 +295,7 @@ var h_angle_inc = Math.PI;
 /*** Add the highlighters in svg ***/
 function setupHighlighters(){
 	for(var i=0; i< num_highlighters; i++){
-		highlighter[i] = svg.append("circle")
+		highlighter[i] = svgHotteness.append("circle")
 			.classed("highlighter", true)
 			.attr("stroke", "rgb(255,0,0)")
 			.attr("fill", "green")
@@ -383,16 +395,17 @@ function addCircle(where, r, cx, cy, fill){
 		.attr("cx", cx)
 		.attr("cy", cy)
 		.attr("r", r+3)
-		.attr("fill", "white")
+		.attr("fill", CIRCLE_BCKG_COLOR)
+		.attr("fill-opacity", CIRCLE_BCKG_ALPHA)
 	where.append("circle")
 		.classed("key", true)
 		.attr("cx", cx)
 		.attr("cy", cy)
 		.attr("r", r)
 		.attr("fill", fill)
-		.attr("stroke", "#aaaaaa")
-		.attr("stroke-width", 9)
-		.attr("stroke-opacity", .2)
+		.attr("stroke", CIRCLE_STRK_COLOR)
+		.attr("stroke-width", CIRCLE_STRK_WIDTH)
+		.attr("stroke-opacity", CIRCLE_STRK_ALPHA)
 }
 
 function addLabel(where, x, y, text, color){
@@ -401,6 +414,6 @@ function addLabel(where, x, y, text, color){
 		.attr("x", x)
 		.attr("y", y)
 		.attr("fill", function(){
-			return color ? color : "white";
+			return color ? color : "black";
 		})
 }
