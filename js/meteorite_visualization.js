@@ -1,23 +1,38 @@
-var WIDTH_4DVisu = 800, HEIGHT_4DVisu = 400;
-var VIEW_ANGLE = 45, ASPECT = WIDTH_4DVisu / HEIGHT_4DVisu, NEAR = 0.1, FAR = 10000;
-var $container = $('#threejs');
+/** Dimensions of the OpenGL Frame. Also needs to be modified in .css file ! **/
+var WIDTH_4DVisu = 800, HEIGHT_4DVisu = 600;
 
+/** A big container where everything will be added **/
+var idWhereToAddTheWholeThing = "#something";
+
+/*
+ * To load the whole stuff, call load4dVisu()
+ * To remove the whole stuff, call remove4DVisu() <<==
+ * /!\ /!\ It is important to call THIS ^^ function, because it will free the GPU memory (asynchronous)
+
+/** This function will load everything inside the idWhereToAddTheWholeThing **/
+function load4DVisu(){
+	$("#something").load("visu_meteorites_HTMLstructure.html", function(){
+		addStatusBars();
+		addControlButtons();
+		initThreejs();
+	})
+}
+
+var closeRequested = false;
+
+function remove4DVisu(){
+	stop = true;
+	closeRequested = true;
+}
+
+/** Camera viewing point **/
+var VIEW_ANGLE = 45, ASPECT = WIDTH_4DVisu / HEIGHT_4DVisu, NEAR = 0.1, FAR = 10000;
 var renderer;
 var camera;
 var scene;
-
 var undefined;
 
-var status, earth_status, load_status, parse_status, meteors_status;
-
-/** Load after DOM generated **/
-$(function(){
-	addStatusBars();
-	addControlButtons();
-	init4DVisu();
-})
-
-function init4DVisu() {
+function initThreejs() {
 	renderer = new THREE.WebGLRenderer();
 	renderer.setClearColor(0x000000);
 	renderer.setSize(WIDTH_4DVisu, HEIGHT_4DVisu);
@@ -31,7 +46,9 @@ function init4DVisu() {
 	camera.lookAt(scene.position);
 	scene.add(camera);
 	
-	$("#threejs").append( renderer.domElement );
+	var container = $("#webGL");
+	
+	container.append( renderer.domElement );
 	setTimeout(function(){
 		addGalaxy();
 		addLights();
@@ -430,10 +447,6 @@ function update() {
 	}
 }
 
-function render() {
-    renderer.render(scene, camera);
-}
-
 /** arg1 is a mesh or geometry ?
  ** ephemere -> if true, only one update is needed
  **/
@@ -462,10 +475,18 @@ function updateNoLongerNeeded(object){
 }
 
 function gameLoop(){
-    update();
+    update();	//This function handles meteor memory release if stop switched to true
     render();
-	requestAnimationFrame(gameLoop);
-	controls.update();
+	controls.update();	//orbit controls I guess :)
+	if (closeRequested){
+		destroy();
+	} else{
+		requestAnimationFrame(gameLoop);
+	}
+}
+
+function render() {
+    renderer.render(scene, camera);
 }
 
 // convert the positions from a lat, lon to a position on a sphere.
@@ -478,6 +499,16 @@ function mapLatLongToVector3(lat, lon, radius, heigth) {
 	var z = (radius+heigth) * Math.cos(phi) * Math.sin(theta);
 
 	return new THREE.Vector3(x,y,z);
+}
+
+function destroy(){
+	scene.remove(camera);
+		for(var i=0; i< NB_SHOCKWAVE_MESHES; i++){
+			shockwaves[i].mesh.geometry.dispose();
+			scene.remove(shockwaves[i].mesh)
+		}
+	scene.remove(earth);
+	scene.remove(clouds);
 }
 
 /**************************
@@ -530,44 +561,37 @@ function logToUserConsole(data){
 	//TODO
 }
 
-var status, earth_status, load_status, parse_status, meteors_status;
+var SVG_STATUS_HEIGHT = 100;
+var earth_status, load_status, parse_status, meteors_status;
 
 function addStatusBars(){
-	status = d3.select("#status").append("svg")
+	var status = d3.select("#loadingBars").append("svg")
 		.attr("width", 200)  
-		.attr("height", HEIGHT_4DVisu)
-	earth_status = d3.select("#status").append("rect")
+		.attr("height", SVG_STATUS_HEIGHT)
+	earth_status = status.append("rect")
 		.attr("x", 0)
-		.attr("y", HEIGHT_4DVisu/2)
+		.attr("y", SVG_STATUS_HEIGHT/2)
 		.attr("width", 20)
 		.attr("height", 0)
-		.attr("fill", function() {
-			return "rgba(30, 30, 200, 1)";
-		})
-	load_status = d3.select("#status").append("rect")
+		.attr("fill", "rgba(30, 30, 200, 1)")
+	load_status = status.append("rect")
 		.attr("x", 22)
-		.attr("y", HEIGHT_4DVisu/2)
+		.attr("y", SVG_STATUS_HEIGHT/2)
 		.attr("width", 20)
 		.attr("height", 0)
-		.attr("fill", function() {
-			return "rgba(200, 70, 20, 1)";
-		})
-	parse_status = d3.select("#status").append("rect")
+		.attr("fill", "rgba(200, 70, 20, 1)")
+	parse_status = status.append("rect")
 		.attr("x", 44)
-		.attr("y", HEIGHT_4DVisu/2)
+		.attr("y", SVG_STATUS_HEIGHT/2)
 		.attr("width", 20)
 		.attr("height", 0)
-		.attr("fill", function() {
-			return "rgba(200, 70, 20, 1)";
-		})
-	meteors_status = d3.select("#status").append("rect")
+		.attr("fill", "rgba(200, 70, 20, 1)")
+	meteors_status = status.append("rect")
 		.attr("x", 66)
-		.attr("y", HEIGHT_4DVisu/2)
+		.attr("y", SVG_STATUS_HEIGHT/2)
 		.attr("width", 20)
 		.attr("height", 0)
-		.attr("fill", function() {
-			return "rgba(200, 70, 20, 1)";
-		});
+		.attr("fill", "rgba(200, 70, 20, 1)");
 }
 
 function addControlButtons(){
@@ -633,6 +657,6 @@ function updateStatus(statusName, percentage){
 	statusBar
 		.transition()
 		.duration(1000)
-		.attr("y", HEIGHT_4DVisu/2-amount)
+		.attr("y", SVG_STATUS_HEIGHT/2-amount)
 		.attr("height", amount)
 }
