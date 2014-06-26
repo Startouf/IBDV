@@ -1,10 +1,16 @@
+/******* Global Params ******/
+/*** For Edouard ***/
+
+var whereToAppendCyrilSVG = "#visualization";
+var CIRCLE_BCKG_COLOR = "#dddddd";
+
+
 /**** Circle showing 2D data with n+1 params **/
 function init() {
 	initData();
 	setupTooltip();
 	setupHighlighters();
 	addKey();
-	upload_button("uploader", load_dataset);
 }
 
 var n = 3;
@@ -36,8 +42,9 @@ function initData(){
 
 	d3.select("article #visualization").append("h2").text("Displaying data using basic numbers");
 		
-	ideas = ["A baby foot", "Some free access computers", "A wifi hotspot", "A touchpad", "Free tea at the bar", 
-	"Unlock Steam ports", "More washing machines", "Fix the ***** air conditioner", "Discounts on computers", "discounts on mobile subscriptions"];
+	ideas = ["A new baby-foot", "Some free access computers in the common rooms", "A wifi hotspot in the common rooms", "A touchpad", "Free tea at the bar", 
+	"Unlock Steam ports", "More washing machines", "Fix the ***** air conditioner", "Discounts on computers", 
+	"Discounts on mobile subscriptions"];
 
 	dataset = new Array(ideas.length);
 	
@@ -58,13 +65,13 @@ function hotteness(a){
 }
 	
 //get positions for circles
-function getOffsets(index){
+function getOffsets(index, radius){
 	var radius, angle;
 	if(index === 0){
 		radius = 0;
 		angle = 0;
 	} else if(index < (12+1)){ //12 bubbles on circle around
-		radius = 200;
+		radius = radius ? radius : 200;
 		angle = (index-1)*2*Math.PI/12; 
 	} else {
 		var numBubbles = dataset.size - 1 - 12;
@@ -118,37 +125,71 @@ function scale(){
 /*******************************
  ** Setup Data Visualization **
  *******************************/
+ 
+ var radiusBefore = 100, radiusAfter = 175;
+ 
 function showData(){
 	//svg params
 	var offsets;
 
-	svg = d3.select("#visualization")
+	svg = d3.select(whereToAppendCyrilSVG)
 		.append("svg")
 		.attr("width", width)   // <-- Here
 		.attr("height", height); // <-- and here!
-	svg.selectAll("text")
+	svg.selectAll("text.data")
 		.data(dataset)
 		.enter()
 		.append("text")
 			//.text(function(d){ return d[0]; })	TODO : restrain text size
 			.attr("x", function(d,i) {
-				offsets = getOffsets(i);
+				offsets = getOffsets(i, radiusBefore);
 				return offsets.x - 30;
 			})
 			.attr("y", function(d,i) {
-				offsets = getOffsets(i);
+				offsets = getOffsets(i, radiusBefore);
 				return offsets.y + rScale(hotteness(d) + 15);
 			})
-	svg.selectAll("circle")
+	svg.selectAll("circle.outer")
 	   .data(dataset)
 	   .enter()
 	   .append("circle")
+			.classed("outer", true)
 			.attr("cx", function(d,i) {
-				offsets = getOffsets(i);
+				offsets = getOffsets(i, radiusBefore);
 				return offsets.x;
 			})
 			.attr("cy", function(d,i) {
-				offsets = getOffsets(i);
+				offsets = getOffsets(i, radiusBefore);
+				return offsets.y;
+			})
+			.attr("r", function(d){
+				return rScale(hotteness(d)+5);
+			})
+			.attr("fill", CIRCLE_BCKG_COLOR)
+			.attr("fill-opacity", 1)
+	svg.selectAll("circle.outer")
+			.transition()
+			.duration(2000)
+			.attr("cx", function(d,i) {
+				offsets = getOffsets(i, radiusAfter);
+				return offsets.x;
+			})
+			.attr("cy", function(d,i) {
+				offsets = getOffsets(i, radiusAfter);
+				return offsets.y;
+			})
+
+	svg.selectAll("circle.inner")
+	   .data(dataset)
+	   .enter()
+	   .append("circle")
+			.classed("inner", true)
+			.attr("cx", function(d,i) {
+				offsets = getOffsets(i, radiusBefore);
+				return offsets.x;
+			})
+			.attr("cy", function(d,i) {
+				offsets = getOffsets(i, radiusBefore);
 				return offsets.y;
 			})
 			.attr("r", function(d){
@@ -158,21 +199,37 @@ function showData(){
 				var color = getColor(d);
 				return(color.rgb);
 			})
-			.attr("stroke", "teal")
-			.attr("stroke-width", "1px")
-			.attr("stroke-opacity", .3)
-			.on('mouseover', function(d){
+			.attr("stroke", "#aaaaaa")
+			.attr("stroke-width", "4px")
+			.attr("stroke-opacity", .5)
+			.on('mouseover', function(d,i){
 				var selection = d3.select(this);
 				var rr = Number(selection.attr("r"));
 				var ccx = Number(selection.attr("cx"));
 				var ccy = Number(selection.attr("cy"))
 				showHighlighters(d, rr, ccx, ccy);
-				showTooltip(d, rr, ccx, ccy, this);
+				showTooltip(d, i, rr, ccx, ccy, this);
 				})
 			.on('mouseout', function(){
 				hideHighlighters(0,0,0,0,false);
 				hideTooltip();
-				});
+				})
+	svg.selectAll("circle.inner")
+	   .transition()
+	   .duration(2000)
+	   .delay(300)
+			.attr("cx", function(d,i) {
+				offsets = getOffsets(i, radiusAfter);
+				return offsets.x;
+			})
+			.attr("cy", function(d,i) {
+				offsets = getOffsets(i, radiusAfter);
+				return offsets.y;
+			})
+}
+
+function hideData(){
+	d3.select("svg").remove();
 }
 
 /**************************
@@ -180,7 +237,7 @@ function showData(){
  **************************/
 var tooltip;
 var tooltip_w = 200;
-var tooltip_h = 70;
+var tooltip_h = 150;
 
 function setupTooltip(){
 	tooltip = d3.select("#visualization").append("div")
@@ -189,12 +246,15 @@ function setupTooltip(){
 		.style("height", tooltip_h)
 }
 
-function showTooltip(d, r, cx, cy, element){
+function showTooltip(d, i, r, cx, cy, element){
 	var matrix = element.getScreenCTM()
 		.translate(cx,cy);
 	tooltip.html(function() {
-		return "<h3 class ='idea'>Idea</h3>" +
-				"<p class='idea_descr'>"+ d[0] + "</p>";
+		return "<h3 class ='idea'>Idea # "+(i+1)+"</h3>" +
+				"<p class='idea_descr'>"+ d[0] + "</p>" +
+				"<p class='nb_comments'>Comments : "+ d[1] + "</p>" +
+				"<p class='votes'>Votes Up : " + d[3] + "<br />Votes down : " + d[2] + "</p>" +
+				"<p class='hotteness'>Overall Hotteness : " + Math.round(hotteness(d)) + "</p>";
 		})
 		.style("visibility", "visible")
 		.style("left", (matrix.e-tooltip_w/2) + "px")
@@ -220,6 +280,7 @@ var highlighter_r = 5;
 var h_angle = 0;
 var h_angle_inc = Math.PI;
 
+/*** Add the highlighters in svg ***/
 function setupHighlighters(){
 	for(var i=0; i< num_highlighters; i++){
 		highlighter[i] = svg.append("circle")
@@ -227,8 +288,8 @@ function setupHighlighters(){
 			.attr("stroke", "rgb(255,0,0)")
 			.attr("fill", "green")
 			.attr("r", 1)
-			.attr("stroke-opacity", .2)
-			.attr("fill-opacity", .4)
+			.attr("stroke-opacity", .3)
+			.attr("fill-opacity", 1)
 	}
 }
 
@@ -261,11 +322,19 @@ function hideHighlighters(){
 	}
 }
 
+var stopUpdatingHighlighters = false;
+
 /** 
  ** Start an updateLoop. The loop is done via a callBack after each update has successfuly ended.
  ** Each update is started after a mouseOver. However, each mouseOut terminates the loop by incrementing the h_instance variable
  **/
 function updateHighlighters(){
+
+	if(stopUpdatingHighlighters){
+		stopUpdatingHighlighters = false;
+		return;
+	}
+
 	var angle;
 	for(var i =0; i < num_highlighters-1; i++){
 		angle = h_angle + i*2*Math.PI/(num_highlighters); 
@@ -310,10 +379,20 @@ function addKey(){
 
 function addCircle(where, r, cx, cy, fill){
 	where.append("circle")
+		.classed("key", true)
+		.attr("cx", cx)
+		.attr("cy", cy)
+		.attr("r", r+3)
+		.attr("fill", "white")
+	where.append("circle")
+		.classed("key", true)
 		.attr("cx", cx)
 		.attr("cy", cy)
 		.attr("r", r)
 		.attr("fill", fill)
+		.attr("stroke", "#aaaaaa")
+		.attr("stroke-width", 9)
+		.attr("stroke-opacity", .2)
 }
 
 function addLabel(where, x, y, text, color){
@@ -321,58 +400,7 @@ function addLabel(where, x, y, text, color){
 		.text(text)
 		.attr("x", x)
 		.attr("y", y)
-		.attr("color", function(){
-			return color ? color : "black";
+		.attr("fill", function(){
+			return color ? color : "white";
 		})
 }
-	
-/** Upload button **/
-// handle upload button
-function upload_button(el, callback) {
-	var uploader = document.getElementById(el);
-	var reader = new FileReader();
-	reader.onload = function(e) {
-		var contents = e.target.result;
-		callback(contents);
-	};
-	uploader.addEventListener("change", handleFiles, false);
-	function handleFiles() {
-		d3.select("#table").text("loading...");
-		var file = this.files[0];
-		reader.readAsText(file);
-	}; 
-}
-
-// load dataset and create table
-function load_dataset(csv) {
-	var data = d3.csv.parse(csv);
-	create_table(data);
-} 
-
-function create_table(data) {
-// table stats
-	var keys = d3.keys(data[0]);
-	var stats = d3.select("#stats")
-		.html("")
-		stats.append("div")
-		.text("Columns: " + keys.length)
-		stats.append("div")
-		.text("Rows: " + data.length)
-	d3.select("#table")
-		.html("")
-		.append("tr")
-		.attr("class","fixed")
-		.selectAll("th")
-		.data(keys)
-		.enter().append("th")
-		.text(function(d) { return d; });
-	d3.select("#table")
-		.selectAll("tr.row")
-		.data(data)
-		.enter().append("tr")
-		.attr("class", "row")
-		.selectAll("td")
-		.data(function(d) { return keys.map(function(key) { return d[key] }) ; })
-		.enter().append("td")
-		.text(function(d) { return d; });
-} 
