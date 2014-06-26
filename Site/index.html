@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta name="description" content="PAF 2014 : In Browser Data Visualization" />
+        <meta charset="utf-8">
+        <title>PAF : In Browser Data Visualization</title>
+        <script type="text/javascript" src="d3/d3.js"></script>
+    </head>
+    <link rel="stylesheet" type="text/css" media="screen" title="User Defined Style" href="css.css" />
+    <body>
+	
+		<img id= "img-telecom" src="./image/TelecomParisTech.jpg" alt="Logo Telecom"  />
+		<script type="text/javascript">
+			
+			function hidethings() {
+			document.getElementById('img-telecom').style.display = 'none';
+			document.getElementById('button2D').style.display = 'none';
+			document.getElementById('button3D').style.display = 'none';
+			document.getElementsByTagName('h4')[0].style.display = 'none';
+			document.getElementsByTagName('li')[0].style.display = 'none';
+			document.getElementsByTagName('li')[1].style.display = 'none';
+			document.getElementsByTagName('li')[2].style.display = 'none';
+			document.getElementsByTagName('li')[3].style.display = 'none';
+			
+			document.getElementById('buttonReturn').style.display = 'inline';
+			
+			}			
+			
+			function click2D() {
+				hidethings();
+				document.getElementsByTagName("h1")[0].innerHTML="2D Data Visualization";
+				
+				
+				document.getElementById('buttonBarChart').style.display = 'inline';
+				document.getElementById('buttonPieChart').style.display = 'inline';
+				document.getElementById('buttonScatterplot').style.display = 'inline';
+				
+				}
+				
+			function click3D() {
+				hidethings();
+				document.getElementsByTagName("h1")[0].innerHTML="3D Data Visualization";
+				
+				}
+
+
+			function showBarChart() {
+				
+				document.getElementById('buttonBarChart').style.background= "#C02942";
+				document.getElementById('buttonPieChart').style.background= "#ECD078";
+				document.getElementById('buttonScatterplot').style.background= "#ECD078";
+				
+				buttonBarChart.disabled= true;
+				buttonPieChart.disabled= false;
+				buttonScatterplot.disabled= false;
+				
+			d3.selectAll("#titlePie1").style("display", "none");
+			d3.selectAll("#titlePie2").style("display", "none");	
+			d3.selectAll("svg").remove();
+							
+var dataset = [];                        //Initialize empty array
+for (var i = 0; i < 15; i++) {           //Loop 25 times
+    var newNumber = Math.round((Math.random() * 27)+3);  //New random number (0-30)
+    dataset.push(newNumber);             //Add new number to array
+}
+
+
+
+d3.select("body").append("p").attr("id", "titleBar").style("font-size", "27px").style("margin-left","15vw").text("Bar-chart animated visualization with SVG").style("font-size","2vw");
+
+var w2 = 1000;
+var h2 = 300;
+var barPadding = 5;
+
+var svg2 = d3.select("body")
+            .append("svg")
+            .attr("width", w2)
+            .attr("height", h2)
+			.attr("align", "center");
+			
+
+ svg2.selectAll("rect")
+			.data(dataset)
+			.enter()
+			.append("rect")
+			.attr("x", function(d, i) {
+			   		return i * (w2 / dataset.length);
+			   })
+			.attr("y", function(d) {
+    return h2 - 6*d; 
+})
+			.attr("width", w2 / dataset.length - barPadding)
+			.attr("height", 0)
+			.attr("fill", function(d) {
+    return "rgb(0, 0, "  + (d * 10) + ")";
+});
+
+	
+	svg2.selectAll("text")
+			   .data(dataset)
+			   .enter()
+			   .append("text")
+			   .text(function(d) {
+			   		return d;
+			   })
+			   .attr("text-anchor", "middle")
+			   .attr("x", function(d, i) {
+			   		return i * (w2 / dataset.length) + (w2 / dataset.length - barPadding) / 2;
+			   })
+			   .attr("y", function(d) {
+			   		return h2  - 6*d + 14;
+			   })
+			   .attr("font-family", "sans-serif")
+			   .attr("font-size", "13px")
+			   .attr("font-weight", "bold")
+			   .attr("fill", "white");
+			   
+/* Animation */			
+	svg2.selectAll("rect")
+		.transition()
+		.duration(1000)
+		.attr("id","Bar")
+		.attr("height", function(d) {
+    return (6*d);
+});
+						
+				}		
+
+			function showPieChart() {
+			document.getElementById('buttonPieChart').style.background= "#C02942";
+			document.getElementById('buttonBarChart').style.background= "#ECD078";
+			document.getElementById('buttonScatterplot').style.background= "#ECD078";
+			
+			buttonPieChart.disabled= true;
+			buttonBarChart.disabled= false;
+			buttonScatterplot.disabled= false;
+			
+			d3.selectAll("#titleBar").style("display", "none");
+			d3.selectAll("svg").remove();
+			
+			
+			
+			d3.select("body").append("p")
+					.attr("id","titlePie1")
+					.attr("align","center")
+					.style("Text-transform","uppercase")
+					.style("Font-family","'Century Gothic'")
+					.style("Font-weight","bold")
+					.style("Font-size","80px")
+					.style("color","#C02942")
+					.text("Example of pie chart");
+			d3.select("body").append("p")
+					.attr("id","titlePie2")
+					.attr("align","center")
+					.style("Font-family","'Century Gothic'")
+					.style("Font-weight","bold")
+					.style("Font-size","30px")
+					.style("color","#53777A")
+					.text("Schools of 2013 PSI* students from Condorcet");		
+			
+				
+				// variables
+				
+				var w = 2000;                     
+			    var h = 2000;                            
+			    var r = 500;      
+			    var Padding = 1;                  
+			    var color = d3.scale.ordinal()
+			    	.range(["#E2D5B6", "#91B5A8", "#337E8D", "#34426C", "#372146"]);    
+					
+                // dataset 
+                         
+			    dataset = [{"label":"ENS", "value":4}, 
+			            {"label":"Centrale Pa", "value":4}, 
+			            {"label":"Centrale Lyon", "value":4},
+			            {"label":"C. Lille","value":2},
+			            {"label":"C. Marseille","value":2},
+			            {"label":"Supélec","value":16},
+			            {"label":"Mines Pa","value":2},
+			            {"label":"Mines Saint Etienne","value":4},
+			            {"label":"ENSTA","value":8},
+			            {"label":"Supaéro","value":4},
+			            {"label":"ENSICA","value":2},
+			            {"label":"TPT","value":2},
+			            {"label":"Télécom Bretagne","value":4},
+			            {"label":"Arts & Métiers","value":8},
+			            {"label":"5/2","value":8},
+			            {"label":"Autres","value":10}];
+			            
+				// pie
+										
+			    var svgPie = d3.select("body")
+			    	.append("p")
+			    	.attr("align","center")
+			        .append("svg")	
+			        .data([dataset])                   
+			        .attr("width", w)           
+			        .attr("height", h)
+			        .append("svg:g")   
+			        .attr("transform", "translate(" + r + "," + r + ")");
+			 
+			    var arc = d3.svg.arc() 
+			        .outerRadius(r)
+			        .innerRadius(r-r/2);
+			 
+			    var pie = d3.layout.pie()           
+			      	.value(function(d) { 
+			      		return d.value; 
+			      	});
+			 
+			    var arcs = svgPie.selectAll("g.slice")     
+			        .data(pie)                          
+			        .enter()                            
+			        .append("svg:g")                
+			        .attr("class", "slice");    
+			       			 
+			    arcs.append("svg:path")
+			        .attr("fill", function(d, i) { 
+			        	return color(i); 
+			        }) 
+			        .attr("d", arc)
+			        .transition()
+				    .ease("exp")
+				    .duration(2000)
+				    .attrTween("d", animate);                                   			 
+			    
+			    arcs.append("svg:text")                                     
+	                .attr("transform", function(d) {                    
+	                	d.innerRadius = 0;
+	                	d.outerRadius = r;
+	                	return "translate(" + arc.centroid(d) + ")";     
+	            	})
+		            .attr("text-anchor", "middle")  
+					.attr("dy", "0.5em")
+		            .text(function(d, i) { 
+		            	return (dataset[i].label); 
+		            })
+		            .attr("fill","white")
+					.attr("font-weight", "bold")
+					.attr("font-size","16");
+		        
+		        arcs.append("svg:text")
+		        	.attr("transform",function(d) {
+		        		d.innerRadius = 0;
+		        		d.outerRadius = 0;
+		        		return "translate(" + arc.centroid(d) + ")";
+		        	})
+		        	.attr("text-anchor","middle")
+					.attr("dy", "-0.3em")
+					.attr("dx", "-0.1em")
+		        	.text(function(d,i) {
+		        		return dataset[i].value;
+		        	})
+		        	.attr("fill","rgba(255,255,255,0.3)")
+		        	.style("Font-size","50px");
+					
+						
+		        	
+		       function animate(b) {
+		        	var i = d3.interpolate({startAngle: 1.1*Math.PI, endAngle: 1.1*Math.PI}, b);
+		        	return function(t) { return arc(i(t)); };
+				}  
+}	
+				
+			function showScatterplot() {
+			
+			buttonBarChart.disabled= false;
+			buttonPieChart.disabled= false;
+			buttonScatterplot.disabled= true;
+}			
+				
+			function returnHomePage() {
+			
+			buttonBarChart.disabled= false;
+			buttonPieChart.disabled= false;
+			buttonScatterplot.disabled= false;
+			window.location.reload(); 
+			}
+			
+		
+			
+		</script>
+		
+				
+		<button class="bouton" id="buttonReturn" onclick="returnHomePage()" style="display:none" >Homepage</button>
+		
+		<h1> In Browser Data Visualization </h1>
+
+		<button class="bouton" id="button2D" onclick="click2D()" >2D Data Visualization</button>
+				
+		<button class="bouton" id="button3D" onclick="click3D()">3D Data Visualization</button>
+		
+		<button class="bouton" id="buttonBarChart" onclick="showBarChart()"  style="display:none" >Bar chart</button>
+		
+		<button class="bouton" id="buttonPieChart" onclick="showPieChart()"  style="display:none" >Pie Chart</button>
+		
+		<button class="bouton" id="buttonScatterplot" onclick="showScatterplot()"  style="display:none" >Scatterplot</button>
+		
+
+		</br> </br>
+		
+		<span id="mentions">
+		<h4> This PAF Project has been done by: </h4>
+				<ul>
+			<li>Paul Catala</a></li>
+			<li>Céline Chen</li>
+			<li>Cyril Duchon-Doris</li>
+			<li>Edouard Epaud</li>
+		</ul>
+		</span>
+    </body>
+</html>     
