@@ -6,13 +6,16 @@ var renderer;
 var camera;
 var scene;
 
+var undefined;
+
 var status, earth_status, load_status, parse_status, meteors_status;
 
 /** Load after DOM generated **/
 $(function(){
 	addStatusBars();
-	$("stop").click(function(){ stop(); });
-	$("start").click(function(){ start(); });
+	var debug = $("#stop");
+	$("#stop").click(function(){ stopAnim(); });
+	$("#start").click(function(){ startAnim(); });
 	init();
 })
 
@@ -209,7 +212,7 @@ var SHOOT_INTERVAL = 350;
 /** For a chunk, prepares the meteor VBOs for each meteorite **/
 function prepareChunk(index){
 
-	numChunk = index ? index : numChunk;
+	numChunk = (index !== undefined) ? index : numChunk;
 	
 	//Skip the last meteorite chunk (or TODO handle non multiple of chunkSize)
 	if(numChunk*chunkSize > dataset.length){
@@ -265,13 +268,14 @@ function prepareChunk(index){
 		//...Or not ?
 	}
 	
-	numChunk++;
 	
-	if(lastPreparedChunk === 0 || index){
+	
+	if(lastPreparedChunk === 0 || (index !== undefined)){
 		currentTime = (index ? index : 0)*SHOOT_INTERVAL + TIME_TO_FALL;
 		canUpdateMeteors = true;
 	}
 	lastPreparedChunk = numChunk;
+	numChunk++;
 }
 
 var indexDoneFalling = 0;
@@ -284,7 +288,7 @@ var TIME_TO_FALL = 800;//in ms for now
  **/
 function updateMeteors(delta){
 	currentTime += delta;
-	for(var i = indexDoneFalling; i < chunkSize*(lastPreparedChunk); i++){
+	for(var i = indexDoneFalling; i < chunkSize*(lastPreparedChunk+1); i++){
 		if(currentTime > meteorites[i].time  ){
 			//If he meteorite is falling
 			if(currentTime < (meteorites[i].time + TIME_TO_FALL)){
@@ -381,7 +385,8 @@ function clearMeteors(){
 	canUpdateMeteors = false;
 	for(var i=0; i< meteorites.length; i++){
 		scene.remove(meteorites[i].meteorObject);
-		meteorites[i].meteorObject.deallocate();
+		//TODO : below function undefined
+		//meteorites[i].meteorObject.deallocate();
 	}
 	indexDoneFalling = 0;
 	lastIndexMerged = 0;
@@ -405,7 +410,13 @@ function update() {
 	var delta = date.getTime() - lastFrameTime;
 	lastFrameTime = date.getTime();
 	
-	if(canUpdateMeteors && play && !stop){
+	if(stop){
+		play = false;
+		clearMeteors();
+		stop = false;
+	}
+	
+	if(canUpdateMeteors && play){
 		if(prepare_next_chunk_bool){
 			prepareChunk()
 			prepare_next_chunk_bool = false;
@@ -449,9 +460,7 @@ function updateNoLongerNeeded(object){
 function gameLoop(){
     update();
     render();
-	if(!stop){
-		requestAnimationFrame(gameLoop)
-	}
+	requestAnimationFrame(gameLoop)
 }
 
 // convert the positions from a lat, lon to a position on a sphere.
@@ -473,17 +482,39 @@ function mapLatLongToVector3(lat, lon, radius, heigth) {
 var stop = false;
 var play = true;	
 
-function pause(){
+function playPause(){
 	play = !play;
 }
+
+var chunkToPrepare = 0;
 	
-function stop(){
+function stopAnim(){
 	stop = true;
-	clearMeteors();
+	chunkToPrepare = 0;
 }
 
-function start(){
-	stop = false;
+function setStartDate(year){
+	chunkToPrepare = findChunk(year);
+}
+
+function startAnim(){
+	//If the anim is still playing, don't do anything stupid !
+	if(canUpdateMeteors === true){
+		return;
+	}
+	prepareChunk(chunkToPrepare);
+	canUpdateMeteors = true;
+	play = true;
+}
+
+function findChunk(year){
+	var found = false;
+	var i=0;
+	while(!found){
+		if(dataset[i].year <= year){
+			return Math.floor(i/chunkSize);
+		}
+	}
 }
 
 /** When a meteorite has Crashed, 
@@ -491,7 +522,7 @@ function start(){
  ** and he can click on the log entry to go to the website
  **/
 function logToUserConsole(data){
-
+	//TODO
 }
 
 var status, earth_status, load_status, parse_status, meteors_status;
