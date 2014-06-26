@@ -489,7 +489,6 @@ function compactGeometry(keepOldMeteors){
 		return;
 	}
 	// the geometry that will contain all our crashed meteorites
-	//compactedGeometry = new THREE.Geometry();
 	for(var i=lastIndexMerged; i<= (Math.round(indexDoneFalling*PERCENTAGE_TO_COMPACT)); i++){
 		if(keepOldMeteors){
 			//TODO : compact ?
@@ -509,7 +508,7 @@ function compactGeometry(keepOldMeteors){
 		scene.add(compactedMesh);
 	}
 	
-	lastIndexMerged = indexDoneFalling;
+	lastIndexMerged = (Math.round(indexDoneFalling*PERCENTAGE_TO_COMPACT);
 	
 	console.log("Compacted " + lastIndexMerged + " meteorites meshes");
 }
