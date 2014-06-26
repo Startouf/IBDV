@@ -6,6 +6,7 @@ var $container = $('#threejs');
 var renderer;
 var camera;
 var scene;
+var controls;
 
 var undefined;
 
@@ -26,7 +27,6 @@ function init() {
 	renderer.setSize(WIDTH, HEIGHT);
 	camera = new THREE.PerspectiveCamera(VIEW_ANGLE, ASPECT, NEAR, FAR);
 	camera.position.set(0, 0, 1800);
-	var controls;
 	
 	controls = new THREE.OrbitControls(camera,renderer.domElement);
     controls.addEventListener('change', render);
@@ -477,7 +477,8 @@ function updateNoLongerNeeded(object){
 function gameLoop(){
     update();
     render();
-	requestAnimationFrame(gameLoop)
+	requestAnimationFrame(gameLoop);
+	controls.update();
 }
 
 // convert the positions from a lat, lon to a position on a sphere.
