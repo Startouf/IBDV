@@ -130,7 +130,7 @@ function addGalaxy() {
 	var galaxyMesh  = new THREE.Mesh(sphereGalaxy, materialGalaxy);
 	scene.add(galaxyMesh);
 	
-	renderer.render(scene, camera);
+	render();
 	
 }
 	
@@ -680,7 +680,7 @@ function addStatusBars(){
 		.attr("y", SVG_STATUS_HEIGHT/2)
 		.attr("width", 20)
 		.attr("height", 0)
-		.attr("fill", "rgba(200, 70, 20, 1)");
+		.attr("fill", "rgba(200, 100, 100, 1)");
 }
 
 function addControlButtons(){
@@ -728,18 +728,23 @@ function updateStatus(statusName, percentage){
 	var statusBar;
 	switch (statusName){
 		case "load": 
+			d3.select("#done_loading").html("<b>Loading...</b> Loading data !");
 			statusBar = load_status;
 			break;
 		case "parse":
+			d3.select("#done_loading").html("<b>Loading...</b> Parsing data !");
 			statusBar = parse_status;
 			break;
 		case "earth":
+			d3.select("#done_loading").html("<b>Loading...</b> Loading Earth !");
 			statusBar = earth_status;
 			break;
 		case "meteors":
+			d3.select("#done_loading").html("<b>Loading...</b> Loading Meteors !");
 			statusBar = meteors_status;
 			break;
 		case "resources":
+			d3.select("#done_loading").html("<b>Loading...</b> Loading Meshes !");
 			statusBar = resources_status;
 			break;
 		case "done":
