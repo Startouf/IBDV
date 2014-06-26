@@ -59,6 +59,7 @@ function initThreejs() {
 			loadResources();
 			addData();
 			setTimeout(function(){
+				updateStatus("done");
 				gameLoop();
 			}, 1000)
 		},1000)
@@ -190,6 +191,8 @@ function loadResources(){
 		}
 	}
 	
+	updateStatus("resources", 33);
+	
 	/* SHOCKWAVES */
 	shockwaves = new Array(NB_SHOCKWAVE_MESHES);
 	var shockwaveMaterial = new THREE.MeshLambertMaterial({color: 0x2222aa,opacity:0.2, emissive:0x0000aa})
@@ -203,6 +206,8 @@ function loadResources(){
 		}
 		scene.add(shockwaves[i].mesh);
 	}
+	
+	updateStatus("resources", 66);
 	
 	/* TRAILS */
 	var trailTexture = new THREE.ImageUtils.loadTexture( 'image/AnimatedExplosion_ME1.png' );
@@ -221,6 +226,7 @@ function loadResources(){
 		scene.add(trails[i].mesh);
 		trails[i].mesh.lookAt(camera.position);
 	}
+	updateStatus("resources", 100);
 }
 
 /*** Handle (every?) meteor type ***/
@@ -634,7 +640,7 @@ function logToUserConsole(data){
 }
 
 var SVG_STATUS_HEIGHT = 100;
-var earth_status, load_status, parse_status, meteors_status;
+var earth_status, load_status, parse_status, meteors_status, resources_status, done_status;
 
 function addStatusBars(){
 	var status = d3.select("#loadingBars").append("svg")
@@ -646,20 +652,26 @@ function addStatusBars(){
 		.attr("width", 20)
 		.attr("height", 0)
 		.attr("fill", "rgba(30, 30, 200, 1)")
-	load_status = status.append("rect")
+	resources_status = status.append("rect")
 		.attr("x", 22)
 		.attr("y", SVG_STATUS_HEIGHT/2)
 		.attr("width", 20)
 		.attr("height", 0)
-		.attr("fill", "rgba(200, 70, 20, 1)")
-	parse_status = status.append("rect")
+		.attr("fill", "rgba(200, 200, 20, 1)")
+	load_status = status.append("rect")
 		.attr("x", 44)
 		.attr("y", SVG_STATUS_HEIGHT/2)
 		.attr("width", 20)
 		.attr("height", 0)
 		.attr("fill", "rgba(200, 70, 20, 1)")
-	meteors_status = status.append("rect")
+	parse_status = status.append("rect")
 		.attr("x", 66)
+		.attr("y", SVG_STATUS_HEIGHT/2)
+		.attr("width", 20)
+		.attr("height", 0)
+		.attr("fill", "rgba(20, 200, 20, 1)")
+	meteors_status = status.append("rect")
+		.attr("x", 88)
 		.attr("y", SVG_STATUS_HEIGHT/2)
 		.attr("width", 20)
 		.attr("height", 0)
@@ -722,6 +734,12 @@ function updateStatus(statusName, percentage){
 		case "meteors":
 			statusBar = meteors_status;
 			break;
+		case "resources":
+			statusBar = resources_status;
+			break;
+		case "done":
+			d3.select("#done_loading").html("<b>Done !</b> Click Play !");
+			return;
 		default:
 			break;
 	}
