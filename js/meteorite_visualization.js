@@ -31,6 +31,7 @@ var renderer;
 var camera;
 var scene;
 var undefined;
+var controlOrbit; //Orbitcontrols
 
 function initThreejs() {
 	renderer = new THREE.WebGLRenderer();
@@ -39,8 +40,8 @@ function initThreejs() {
 	camera = new THREE.PerspectiveCamera(VIEW_ANGLE, ASPECT, NEAR, FAR);
 	camera.position.set(0, 0, 1800);
 	
-	controls = new THREE.OrbitControls(camera,renderer.domElement);
-    controls.addEventListener('change', render);
+	controlOrbit = new THREE.OrbitControls(camera,renderer.domElement);
+    controlOrbit.addEventListener('change', render);
 	
 	scene =  new THREE.Scene();
 	camera.lookAt(scene.position);
@@ -170,6 +171,7 @@ var meteorGeometry, shockwaveGeometry;
 var meteorMaterial;	//DEBUG
 var meteorMeshes; 
 var shockwaves;
+var trails;
 
 /** Loads the geometry that is going to be used for rendering the meteorites **/
 function loadResources(){		
@@ -188,6 +190,7 @@ function loadResources(){
 		}
 	}
 	
+	/* SHOCKWAVES */
 	shockwaves = new Array(NB_SHOCKWAVE_MESHES);
 	var shockwaveMaterial = new THREE.MeshLambertMaterial({color: 0x2222aa,opacity:0.2, emissive:0x0000aa})
 	
@@ -199,6 +202,24 @@ function loadResources(){
 			scale: 0
 		}
 		scene.add(shockwaves[i].mesh);
+	}
+	
+	/* TRAILS */
+	var trailTexture = new THREE.ImageUtils.loadTexture( 'image/AnimatedExplosion_ME1.png' );
+	var trailMaterial = new THREE.MeshBasicMaterial( { map: trailTexture, side:THREE.DoubleSide, transparent: true, opacity: 1} ); //TODO : only one side ?
+	var trailGeometry = new THREE.PlaneGeometry(50, 50, 1, 1);
+	trails = new Array(NB_TRAIL_MESHES);
+	
+	for(var i=0; i< NB_TRAIL_MESHES; i++){
+		var animator = new TextureAnimator( trailTexture, 7, 7, 49, 6000 ); // texture, #horiz, #vert, #total, duration.
+		trails[i] = {
+			mesh: new THREE.Mesh(trailGeometry, trailMaterial),
+			time: 0,
+			done_animating: true,
+			animator: animator
+		}
+		scene.add(trails[i].mesh);
+		trails[i].mesh.lookAt(camera.position);
 	}
 }
 
@@ -324,12 +345,16 @@ function updateMeteors(delta){
 			if(currentTime < (meteorites[i].time + TIME_TO_FALL)){
 				meteorites[i].meteorObject.position = mapLatLongToVector3(meteorites[i].lat, meteorites[i].lng, 600, 
 					600-Math.round((595*(currentTime-meteorites[i].time)/TIME_TO_FALL)));
-				//console.log("meteorite " + i + " has fallen to " + 600-Math.round((5*currentTime/(meteorites[i].time + TIME_TO_FALL))))
+				if(meteorites[i].isFalling === false){
+					isFalling = true;
+					addTrailToMeteor(meteorites[i]);
+				}
 			} // If the meteorite has crashed
 			else{
 				indexDoneFalling++;
 				meteorites[i].meteorObject.position = mapLatLongToVector3(meteorites[i].lat, meteorites[i].lng, 600, 2);
 				triggerShockwave(meteorites[i]);
+				meteorites[i].isFalling = false;	//TODO : Hide trail
 				logToUserConsole(meteorites[i].data);
 				//console.log("meteorite" + i + "has landed")
 			}
@@ -349,13 +374,11 @@ var NB_SHOCKWAVE_MESHES = Math.ceil(SHOCKWAVE_DURATION/SHOOT_INTERVAL)
 var availableShockwaveMesh = 0;
 
 function triggerShockwave(meteorite){
-
 	shockwaves[availableShockwaveMesh].mesh.position = mapLatLongToVector3(meteorite.lat, meteorite.lng, 600, 3);
 	shockwaves[availableShockwaveMesh].done_animating = false;
 	shockwaves[availableShockwaveMesh].scale = 2*meteorite.scale;
 	shockwaves[availableShockwaveMesh].time = meteorite.time + TIME_TO_FALL;
 	availableShockwaveMesh = (availableShockwaveMesh +1)%NB_SHOCKWAVE_MESHES;
-
 }
 
 function updateShockwaves(){
@@ -372,6 +395,75 @@ function updateShockwaves(){
 			}
 		}
 	}
+}
+
+var NB_TRAIL_MESHES = Math.ceil(TIME_TO_FALL/SHOOT_INTERVAL)
+var availableTrailMesh = 0;
+var TRAIL_WIDTH = 20;
+
+function addTrailToMeteor(meteorite){
+//TODO : keep current pos in meteorite ?
+
+	trails[availableTrailMesh].mesh.position = mapLatLongToVector3(meteorite.lat, meteorite.lng, 600, 
+					600-Math.round((595*(currentTime-meteorite.time)/TIME_TO_FALL)) + TRAIL_WIDTH);
+	trails[availableTrailMesh].done_animating = false;
+	trails[availableTrailMesh].time = meteorite.time;
+	availableTrailMesh = (availableTrailMesh + 1)%NB_TRAIL_MESHES;
+}
+
+function updateTrails(delta){
+	for(var i = 0; i< trails.length; i++){
+		if(trails[i].done_animating === false){
+			//If not done animating
+			if(currentTime < trails[i].time +TIME_TO_FALL){
+				trails[i].mesh.visible = true;
+				trails[i].mesh.lookAt(camera.position);
+				trails[i].animator.update(1000 * delta);
+			} else{
+				trails[i].mesh.visible = false;
+				trails[i].done_animating = true;
+			}
+		}
+	}
+}
+
+function TextureAnimator(texture, tilesHoriz, tilesVert, numTiles, tileDispDuration) 
+{	
+	// note: texture passed by reference, will be updated by the update function.
+		
+	this.tilesHorizontal = tilesHoriz;
+	this.tilesVertical = tilesVert;
+	// how many images does this spritesheet contain?
+	//  usually equals tilesHoriz * tilesVert, but not necessarily,
+	//  if there at blank tiles at the bottom of the spritesheet. 
+	this.numberOfTiles = numTiles;
+	texture.wrapS = texture.wrapT = THREE.RepeatWrapping; 
+	texture.repeat.set( 1 / this.tilesHorizontal, 1 / this.tilesVertical );
+
+	// how long should each image be displayed?
+	this.tileDisplayDuration = tileDispDuration;
+
+	// how long has the current image been displayed?
+	this.currentDisplayTime = 0;
+
+	// which image is currently being displayed?
+	this.currentTile = 0;
+		
+	this.update = function( milliSec )
+	{
+		this.currentDisplayTime += milliSec;
+		while (this.currentDisplayTime > this.tileDisplayDuration)
+		{
+			this.currentDisplayTime -= this.tileDisplayDuration;
+			this.currentTile++;
+			if (this.currentTile == this.numberOfTiles)
+				this.currentTile = 0;
+			var currentColumn = this.currentTile % this.tilesHorizontal;
+			texture.offset.x = currentColumn / this.tilesHorizontal;
+			var currentRow = Math.floor( this.currentTile / this.tilesHorizontal );
+			texture.offset.y = currentRow / this.tilesVertical;
+		}
+	};
 }
 
 var compactedGeometry;
@@ -444,40 +536,16 @@ function update() {
 		}
 		updateMeteors(delta);
 		updateShockwaves();
-	}
-}
-
-/** arg1 is a mesh or geometry ?
- ** ephemere -> if true, only one update is needed
- **/
-function updateNeeded(arg1, ephemere){
-	// set the geometry to dynamic
-	// so that it allow updates
-	mesh.geometry.dynamic = true;
-
-	// changes to the vertices
-	mesh.geometry.verticesNeedUpdate = true;
-
-	// changes to the normals
-	mesh.geometry.normalsNeedUpdate = true;
-	
-	if(ephemere){
-		//TODO
+		updateTrails(delta);
 	}
 }
 
 var canUpdateMeteors;
 
-function updateNoLongerNeeded(object){
-	object.geometry.dynamic = false;
-	object.geometry.verticesNeedUpdate = false;
-	object.geometry.normalsNeedUpdate = false;
-}
-
 function gameLoop(){
     update();	//This function handles meteor memory release if stop switched to true
     render();
-	controls.update();	//orbit controls I guess :)
+	controlOrbit.update();	//orbit controls I guess :)
 	if (closeRequested){
 		destroy();
 	} else{
@@ -519,6 +587,9 @@ var stop = false;
 var play = false;	
 
 function playPause(){
+	if(play === false){
+		startAnim();
+	}
 	play = !play;
 }
 
@@ -527,6 +598,7 @@ var chunkToPrepare = 0;
 function stopAnim(){
 	stop = true;
 	chunkToPrepare = 0;
+	//TODO or not ? Set year to start (chunk 0)
 }
 
 function setStartDate(year){
@@ -539,7 +611,7 @@ function startAnim(){
 		return;
 	}
 	prepareChunk(chunkToPrepare);
-	canUpdateMeteors = true;
+	//canUpdateMeteors = true; Done by prepare chunk when it successfully completes
 	play = true;
 }
 
@@ -658,5 +730,5 @@ function updateStatus(statusName, percentage){
 		.transition()
 		.duration(1000)
 		.attr("y", SVG_STATUS_HEIGHT/2-amount)
-		.attr("height", amount)
+		.attr("height", amount);
 }

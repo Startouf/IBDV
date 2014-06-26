@@ -38,3 +38,27 @@
 	margin: 10px;
 	padding-top: 10px;
 }
+
+/***** User log ***/
+
+div.scroll
+{
+background-color:#00FFFF;
+width:400px;
+height:300px;
+overflow:auto;
+}
+
+table {
+ border-width:1px; 
+ border-style:solid; 
+ border-color:black;
+ width:100%;
+ }
+
+td { 
+ border-width:1px;
+ border-style:solid; 
+ border-color:blue;
+ width:100%;
+ }
