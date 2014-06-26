@@ -1,4 +1,5 @@
-var WIDTH = 800, HEIGHT = 600;
+var WIDTH = 800,
+    HEIGHT = 400;
 var VIEW_ANGLE = 45, ASPECT = WIDTH / HEIGHT, NEAR = 0.1, FAR = 10000;
 var $container = $('#threejs');
 
@@ -36,6 +37,7 @@ function init() {
 	
 	$("#threejs").append( renderer.domElement );
 	setTimeout(function(){
+		addGalaxy();
 		addLights();
 		addEarth();
 		addClouds();
@@ -97,6 +99,21 @@ function addClouds() {
 	updateStatus("earth", 100);
 }
 
+/** Adds the galaxy **/
+function addGalaxy() {
+ 	var sphereGalaxy  = new THREE.SphereGeometry(1500, 50, 50);
+	var materialGalaxy  = new THREE.MeshBasicMaterial();
+	materialGalaxy.map   = THREE.ImageUtils.loadTexture('image/galaxy.png',{},function() {
+			renderer.render(scene,camera)
+		});
+	materialGalaxy.side  = THREE.BackSide;
+	materialGalaxy.needsUpdate=true;
+	var galaxyMesh  = new THREE.Mesh(sphereGalaxy, materialGalaxy);
+	scene.add(galaxyMesh);
+	
+	renderer.render(scene, camera);
+}
+	
 /*************************
 	Data Loading, 
 	Object Generation
