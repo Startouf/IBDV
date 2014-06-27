@@ -21,7 +21,7 @@ function click2D() {
 	buttonBarChart.disabled= false;
 	buttonPieChart.disabled= false;
 	buttonScatterplot.disabled= false;
-	
+	buttonHottenessPlot.disabled= false;
 }
 	
 function click3D() {
@@ -288,7 +288,7 @@ function showScatterplot() {
 	.style("Font-size","28px")
 	.style("color","#C02942");
 
-	d3.select("#content").append("p").attr("id", "titleScatterplot2").style("text-align","center").text("(gives a visualization of works progression in an animation production studio; thus, animators can see which projects are late on schedule and need their help)").style("font-size","0.8vw");
+	d3.select("#content").append("p").attr("id", "titleScatterplot2").style("text-align","center").text("(gives a visualization of works progression in an animation production studio; thus, animators can see which projects are late on schedule and need their help)").style("font-size","1.2vw");
 	    
 
 	for (var i = 0; i<10; i++){
@@ -580,9 +580,6 @@ function showHottenessPlot(){
 }
 				
 function returnHomePage() {	
-	buttonBarChart.disabled= false;
-	buttonPieChart.disabled= false;
-	buttonScatterplot.disabled= false;
 	window.location.reload(); 
 }
 			

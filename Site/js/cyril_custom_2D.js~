@@ -382,7 +382,7 @@ function addKey(){
 	addCircle(keySVG, 10, 50, 100, "black")
 	addCircle(keySVG, 25, 110, 100, "black")
 	addCircle(keySVG, 35, 200, 100, "black")
-	addLabel(keySVG, 300, 100, "Hottness")
+	addLabel(keySVG, 300, 100, "Hotteness")
 	
 	//Color
 	addCircle(keySVG, 10, 50, 250, "red")

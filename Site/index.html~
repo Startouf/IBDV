@@ -44,7 +44,7 @@
 				<button class="bouton" id="buttonScatterplot" onclick="showScatterplot()"  style="display:none" >Scatterplot</button>
 			</div>
 			<div class="column_button">
-				<button class="bouton" id="buttonHottenessPlot" onclick="showHottenessPlot()" style="display:none" >Hottness Plot</button>
+				<button class="bouton" id="buttonHottenessPlot" onclick="showHottenessPlot()" style="display:none" >Hotteness Plot</button>
 			</div>
 			
 			</br> </br>
