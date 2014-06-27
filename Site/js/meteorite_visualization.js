@@ -641,7 +641,22 @@ function findChunk(year){
  ** and he can click on the log entry to go to the website
  **/
 function logToUserConsole(data){
-	//TODO
+	if (dataMacthesFilter(data)){
+		//Call Paul's function to add it to the list
+	}
+}
+
+/** Looks at what is written in the fields to decide whether to add the meteorite to the log or not **/
+function dataMatcherFilter(data){
+	lat = data.lat;
+	 if( lat < d3.select("#latMin").attr("value")
+	 || lat > d3.select("#latMax").attr("value")
+	 || lng < d3.select("#lngMin").attr("value")
+	 || lng > d3.select("#lngMax").attr("value")){
+		return false;
+	} else {
+		return true;
+	};
 }
 
 var SVG_STATUS_HEIGHT = 100;
@@ -712,15 +727,19 @@ function addControlButtons(){
 		.on("click", function(){ return;})
 	filter.append("input")
 		.attr("id", "latMin")
+		.attr("value", -90)
 		.attr("placeholder", "Latitude min")
 	filter.append("input")
 		.attr("id", "latMax")
+		.attr("value", 90)
 		.attr("placeholder", "Latitude max")
 	filter.append("input")
 		.attr("id", "lngMin")
+		.attr("value", -180)
 		.attr("placeholder", "Longitude min")
 	filter.append("input")
 		.attr("id", "lngMax")
+		.attr("value", 180)
 		.attr("placeholder", "Longitude max")
 }
 
