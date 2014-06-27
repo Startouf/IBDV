@@ -13,6 +13,7 @@ var idWhereToAddTheWholeThing = "#content";
 function load4DVisu(idWhere){
 	var whereToLoad = idWhere ? idWhere : idWhereToAddTheWholeThing;
 	$(whereToLoad).load("visu_meteorites_HTMLstructure.html", function(){
+		entry = document.getElementById("meteorsTable");
 		addStatusBars();
 		addControlButtons();
 		initThreejs();
@@ -641,14 +642,50 @@ function findChunk(year){
  ** and he can click on the log entry to go to the website
  **/
 function logToUserConsole(data){
-	if (dataMacthesFilter(data)){
-		//Call Paul's function to add it to the list
+	if (dataMatchesFilter(data)){
+		pushRow(data);
 	}
 }
 
+var MAX_LINES = 50 ;
+var curs = 2;
+var entry;
+
+ function pushRow(data){
+  var row = entry.insertRow(curs);
+  var place = data.place;
+  var type = data.type;
+  var mass = data.mass;
+  var year = Math.round(data.year);
+  var link = data.database;
+  var lng = Math.round(data.longitude*10)/10;
+  var lat = Math.round(data.latitude*10)/10;
+
+  var cell1 = row.insertCell(0);
+  var cell2 = row.insertCell(1);
+  var cell3 = row.insertCell(2);
+  var cell4 = row.insertCell(3);
+  var cell5 = row.insertCell(4);
+
+  cell1.innerHTML = "<a href='" + link + "'>" + place + "</a>";
+  cell2.innerHTML = year;
+  cell3.innerHTML = "("+lng+","+lat+")";
+  cell4.innerHTML = mass;
+  cell5.innerHTML = type;
+
+
+  curs = curs + 1;
+
+  if (curs == MAX_LINES){
+    entry.deleteRow(2);
+    curs = curs - 1;
+  }
+}
+
 /** Looks at what is written in the fields to decide whether to add the meteorite to the log or not **/
-function dataMatcherFilter(data){
-	lat = data.lat;
+function dataMatchesFilter(data){
+	var lat = data.latitude;
+	var lng = data.longitude;
 	 if( lat < d3.select("#latMin").attr("value")
 	 || lat > d3.select("#latMax").attr("value")
 	 || lng < d3.select("#lngMin").attr("value")
@@ -702,14 +739,17 @@ function addControlButtons(){
 	var controls = d3.select("#controls");
 	controls.append("button")
 		.attr("id", "play")
+		.classed("bouton2", true)
 		.text("Play")
 		.on("click",function(){ playPause(); })
 	controls.append("button")
 		.attr("id", "pause")
+		.classed("bouton2", true)
 		.text("Stop")
 		.on("click",function(){ stopAnim(); });
 	controls.append("button")
 		.attr("id", "gotoYear")
+		.classed("bouton2", true)
 		.text("Goto year :")
 		.on("click",function(){ startAnim(); });
 	controls.append("input")
@@ -724,6 +764,7 @@ function addControlButtons(){
 	filter.append("button")
 		.attr("id", "filter")
 		.text("Show only meteorites falling in this area :")
+		.classed("bouton2", true)
 		.on("click", function(){ return;})
 	filter.append("input")
 		.attr("id", "latMin")

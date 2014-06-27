@@ -6,40 +6,106 @@ canvas{
 	margin: 5px;
 	width: 100%;
 	height: 600px;
+	float:left;
 }
 
-	.column{
-		float:left;
-		padding: 5px;
-
+	#contentwrapper{
+		float: left;
+		width: 100%;
 	}
 		#webGL{
-			width: 800px;		/*Should be the same as WIDTH and HEIGHT in meteorite_visualization.js !!*/
+			margin-left: -100%;
+			width:800px;
 			height: 600px;		/*Should be the same as WIDTH and HEIGHT in meteorite_visualization.js !!*/
-			border-right: 2px dashed black;
-			margin: 1px;
+			float:left;
 		}
 
-		#info{
-			margin-left: 20px;
-			min-width:50px;
-			min-height: 100px;
-			height: 600px;		/*Should be the same as WIDTH and HEIGHT in meteorite_visualization.js !!*/
-			clear: right;
+		#info{		/*colonne de droite */
+			margin-left: 800px;
+			overflow: auto;
 		}
 
 			#loadingBars {
+				margin: 10px;
 				height: 100px;
 			}
 			
 			#meteorLog{
+				margin: 10px;
 				max-height: 500px;
 				clear: right;
 			}
+			
+			div.scroll{
+					background-color:#00FFFF;
+					width:400px;
+					height:300px;
+					overflow:auto;
+				}
+
+				table {
+					 border-width:1px; 
+					 border-style:solid; 
+					 border-color:black;
+					 width:100%;
+					 font-size: 14px;
+				 }
+
+				td { 
+					 border-width:1px;
+					 border-style:solid; 
+					 border-color:blue;
+					 width:100%;
+				 }
+				 
+				 td:first{
+					width:150px;
+				 }
+				 
+				 td a{
+					color: #000000; 
+					font: verdana;
+					text-decoration: underline;
+				 }
+			
 #controls{
 	margin: 10px;
 	padding-top: 10px;
+	text-align: left;
 }
+
+	.bouton2 {
+		background-color: #ECD078; 
+		border: 0px; 
+		Font-family: 'Century Gothic'; 
+		Font-weight: bold;
+		Font-size: 16px; 
+		Color: #FFFFFF; 
+		Padding: 6px 15px 6px 15px;   
+		Border-radius: 10px;
+		margin-right: 15px;
+	}
+	
+	#play{
+		margin-left: 30px;
+	}
+	
+	#gotoYear{
+		margin-right: 51px;
+	}
+	
+	input{
+		border: 0px; 
+		Font-family: 'Century Gothic'; 
+		Font-weight: bold;
+		color: #000000;
+		Font-size: 16px; 
+		background-color: rgba(0,0,0,0.2); 
+		Padding: 6px 15px 6px 15px;   
+		Border-radius: 5px;
+		width: 50px;
+		margin-right: 15px;
+	}
 
 /***** User log ***/
 
