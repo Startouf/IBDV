@@ -1,4 +1,4 @@
-var arc;
+
 
 function hidethings() {
 	document.getElementById('img-telecom').style.display = 'none';
@@ -55,7 +55,12 @@ function showBarChart() {
 		.style("font-size", "27px")
 		.style("text-align","center")
 		.text("Bar-chart animated visualization with SVG")
-		.style("font-size","2vw");
+		.style("Text-transform","uppercase")
+		.style("Font-family","'Century Gothic'")
+		.style("Font-weight","bold")
+		.style("Font-size","28px")
+		.style("color","#C02942");
+
 
 	var w2 = 1000;
 	var h2 = 300;
@@ -150,9 +155,9 @@ function showPieChart() {
 
 	// variables
 
-	var w = 2000;                     
-	var h = 2000;                            
-	var r = 500;      
+	var w = 1000;                     
+	var h = 1000;                            
+	var r = 300;      
 	var Padding = 1;                  
 	var color = d3.scale.ordinal()
 		.range(["#E2D5B6", "#91B5A8", "#337E8D", "#34426C", "#372146"]);    
@@ -179,42 +184,42 @@ function showPieChart() {
 	// pie
 							
 	var svgPie = d3.select("#content")
-		.append("p")
+		.append("div")
 		.attr("align","center")
 		.append("svg")	
 		.data([dataset])                   
 		.attr("width", w)           
 		.attr("height", h)
 		.append("svg:g")   
-		.attr("transform", "translate(" + r + "," + r + ")")
-		.attr("margin-left", "10000 px");
+		.attr("transform", "translate(500,300)");
 
-	var arc = d3.svg.arc() 
+	var arc= d3.svg.arc() 
 		.outerRadius(r)
 		.innerRadius(r-r/2);
+	 
 
 	var pie = d3.layout.pie()           
 		.value(function(d) { 
 			return d.value; 
 		});
 
-	var arcs = svgPie.selectAll("g.slice")     
+	var slices = svgPie.selectAll("g.slice")     
 		.data(pie)                          
 		.enter()                            
 		.append("svg:g")                
 		.attr("class", "slice");    
 				 
-	arcs.append("svg:path")
+	slices.append("svg:path")
 		.attr("fill", function(d, i) { 
 			return color(i); 
 		}) 
-		.attr("d", arc)
-		.transition()
+		.attr("d", arc);
+/*		.transition()
 		.ease("exp")
 		.duration(2000)
-		.attrTween("d", animate);                                   			 
+		.attrTween("d", animate);   */                                			 
 
-	arcs.append("svg:text")                                     
+	slices.append("svg:text")                                     
 		.attr("transform", function(d) {                    
 			d.innerRadius = 0;
 			d.outerRadius = r;
@@ -229,7 +234,7 @@ function showPieChart() {
 		.attr("font-weight", "bold")
 		.attr("font-size","16");
 
-	arcs.append("svg:text")
+	slices.append("svg:text")
 		.attr("transform",function(d) {
 			d.innerRadius = 0;
 			d.outerRadius = 0;
@@ -246,11 +251,11 @@ function showPieChart() {
 }
 					
 					  	
-function animate(b) {
+/* function animate(b) {
 	var i = d3.interpolate({startAngle: 1.1*Math.PI, endAngle: 1.1*Math.PI}, b);
 	//TODO : getting some "arc is undefined"
-	return function(t) { return arc(i(t)); };
-}  
+	return function(t) { return arc (i(t)); };
+}  */
 	
 				
 function showScatterplot() {
@@ -272,7 +277,17 @@ function showScatterplot() {
 	var padding = 100;
 	var dataset = d3.range(0, 0, 0);
 	
-	d3.select("#content").append("p").attr("id", "titleScatterplot").style("text-align","center").text("Project planning in an animation studio").style("font-size","2vw");
+	d3.select("#content")
+	.append("p")
+	.attr("id", "titleScatterplot")
+	.style("text-align","center")
+	.text("Project planning in an animation studio")
+	.style("Text-transform","uppercase")
+	.style("Font-family","'Century Gothic'")
+	.style("Font-weight","bold")
+	.style("Font-size","28px")
+	.style("color","#C02942");
+
 	d3.select("#content").append("p").attr("id", "titleScatterplot2").style("text-align","center").text("(gives a visualization of works progression in an animation production studio; thus, animators can see which projects are late on schedule and need their help)").style("font-size","0.8vw");
 	    
 
@@ -347,7 +362,7 @@ function showScatterplot() {
   		}});
 
 	var svg = d3.select("#content").append("svg")
-				.attr("width", w+200) 
+				.attr("width", w) 
 				.attr("height", h+600);
 
 	svg.call(tip);
@@ -443,7 +458,7 @@ function showScatterplot() {
 
 	svg.append("text")
 		/*.attr("transform", "rotate(-90)")*/
-		.attr("x", "40")
+		.attr("x", "45")
 		.attr("y", "300")
 		/*.attr("dy", "1em")*/
 		.attr("text-anchor", "middle")

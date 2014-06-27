@@ -126,7 +126,19 @@ div.bar {
 	text-align:center;
 }
 
-
+/*
+	#buttonBarChart {
+		margin-left: 18vw;
+	}
+		
+	#buttonPieChart {
+		margin-left: 15vw;
+	}
+		
+	#buttonScatterplot {
+		margin-left: 17vw;
+	}	
+*/
 
 .bouton:hover {
 	background-color: #C02942; 
