@@ -1,41 +1,59 @@
-var WIDTH = 800, HEIGHT = 600;
-var VIEW_ANGLE = 45, ASPECT = WIDTH / HEIGHT, NEAR = 0.1, FAR = 10000;
-var $container = $('#threejs');
+/** Dimensions of the OpenGL Frame. Also needs to be modified in .css file ! **/
+var WIDTH_4DVisu = 800, HEIGHT_4DVisu = 600;
 
+/** A big container where everything will be added **/
+var idWhereToAddTheWholeThing = "#something";
+
+/*
+ * To load the whole stuff, call load4dVisu()
+ * To remove the whole stuff, call remove4DVisu() <<==
+ * /!\ /!\ It is important to call THIS ^^ function, because it will free the GPU memory (asynchronous)
+
+/** This function will load everything inside the idWhereToAddTheWholeThing **/
+function load4DVisu(){
+	$("#something").load("visu_meteorites_HTMLstructure.html", function(){
+		addStatusBars();
+		addControlButtons();
+		initThreejs();
+	})
+}
+
+var closeRequested = false;
+
+function remove4DVisu(){
+	stop = true;
+	closeRequested = true;
+}
+
+/** Camera viewing point **/
+var VIEW_ANGLE = 45, ASPECT = WIDTH_4DVisu / HEIGHT_4DVisu, NEAR = 0.1, FAR = 10000;
 var renderer;
 var camera;
 var scene;
-
 var undefined;
+var controlOrbit; //Orbitcontrols
 
-var status, earth_status, load_status, parse_status, meteors_status;
-
-/** Load after DOM generated **/
-$(function(){
-	addStatusBars();
-	var debug = $("#stop");
-	$("#stop").click(function(){ stopAnim(); });
-	$("#start").click(function(){ startAnim(); });
-	init();
-})
-
-function init() {
-	renderer = new THREE.WebGLRenderer();
-	renderer.setClearColor(0x000000);
-	renderer.setSize(WIDTH, HEIGHT);
+function initThreejs() {
+	renderer = new THREE.WebGLRenderer({alpha: true});
+	renderer.setClearColor(0x000000,0);
+	renderer.setSize(WIDTH_4DVisu, HEIGHT_4DVisu);
 	camera = new THREE.PerspectiveCamera(VIEW_ANGLE, ASPECT, NEAR, FAR);
 	camera.position.set(0, 0, 1800);
-	var controls;
 	
-	controls = new THREE.OrbitControls(camera,renderer.domElement);
-    controls.addEventListener('change', render);
+	controlOrbit = new THREE.OrbitControls(camera,renderer.domElement);
+    controlOrbit.addEventListener('change', render);
+	controlOrbit.minDistance = 650;
+	controlOrbit.maxDistance = Infinity;
 	
 	scene =  new THREE.Scene();
 	camera.lookAt(scene.position);
 	scene.add(camera);
 	
-	$("#threejs").append( renderer.domElement );
+	var container = $("#webGL");
+	
+	container.append( renderer.domElement );
 	setTimeout(function(){
+		addGalaxy();
 		addLights();
 		addEarth();
 		addClouds();
@@ -43,6 +61,7 @@ function init() {
 			loadResources();
 			addData();
 			setTimeout(function(){
+				updateStatus("done");
 				gameLoop();
 			}, 1000)
 		},1000)
@@ -97,6 +116,24 @@ function addClouds() {
 	updateStatus("earth", 100);
 }
 
+/** Adds the galaxy **/
+//REMOVED : added as 
+function addGalaxy() {
+
+ 	var sphereGalaxy  = new THREE.SphereGeometry(1500, 50, 50);
+	var materialGalaxy  = new THREE.MeshBasicMaterial();
+	materialGalaxy.map   = THREE.ImageUtils.loadTexture('image/galaxy.png',{},function() {
+			renderer.render(scene,camera)
+		});
+	materialGalaxy.side  = THREE.BackSide;
+	materialGalaxy.needsUpdate=true;
+	var galaxyMesh  = new THREE.Mesh(sphereGalaxy, materialGalaxy);
+	scene.add(galaxyMesh);
+	
+	render();
+	
+}
+	
 /*************************
 	Data Loading, 
 	Object Generation
@@ -140,6 +177,7 @@ var meteorGeometry, shockwaveGeometry;
 var meteorMaterial;	//DEBUG
 var meteorMeshes; 
 var shockwaves;
+var trails;
 
 /** Loads the geometry that is going to be used for rendering the meteorites **/
 function loadResources(){		
@@ -158,6 +196,9 @@ function loadResources(){
 		}
 	}
 	
+	updateStatus("resources", 33);
+	
+	/* SHOCKWAVES */
 	shockwaves = new Array(NB_SHOCKWAVE_MESHES);
 	var shockwaveMaterial = new THREE.MeshLambertMaterial({color: 0x2222aa,opacity:0.2, emissive:0x0000aa})
 	
@@ -170,6 +211,27 @@ function loadResources(){
 		}
 		scene.add(shockwaves[i].mesh);
 	}
+	
+	updateStatus("resources", 66);
+	
+	/* TRAILS */
+	var trailTexture = new THREE.ImageUtils.loadTexture( 'image/AnimatedExplosion_ME1.png' );
+	var trailMaterial = new THREE.MeshBasicMaterial( { map: trailTexture, side:THREE.DoubleSide, transparent: true, opacity: 1} ); //TODO : only one side ?
+	var trailGeometry = new THREE.PlaneGeometry(50, 50, 1, 1);
+	trails = new Array(NB_TRAIL_MESHES);
+	
+	for(var i=0; i< NB_TRAIL_MESHES; i++){
+		var animator = new TextureAnimator( trailTexture, 7, 7, 49, 6000 ); // texture, #horiz, #vert, #total, duration.
+		trails[i] = {
+			mesh: new THREE.Mesh(trailGeometry, trailMaterial),
+			time: 0,
+			done_animating: true,
+			animator: animator
+		}
+		scene.add(trails[i].mesh);
+		trails[i].mesh.lookAt(camera.position);
+	}
+	updateStatus("resources", 100);
 }
 
 /*** Handle (every?) meteor type ***/
@@ -270,7 +332,7 @@ function prepareChunk(index){
 	
 	
 	
-	if(lastPreparedChunk === 0 || (index !== undefined)){
+	if(numChunk === 0 || (index !== undefined)){
 		currentTime = (index ? index : 0)*SHOOT_INTERVAL + TIME_TO_FALL;
 		canUpdateMeteors = true;
 	}
@@ -294,12 +356,16 @@ function updateMeteors(delta){
 			if(currentTime < (meteorites[i].time + TIME_TO_FALL)){
 				meteorites[i].meteorObject.position = mapLatLongToVector3(meteorites[i].lat, meteorites[i].lng, 600, 
 					600-Math.round((595*(currentTime-meteorites[i].time)/TIME_TO_FALL)));
-				//console.log("meteorite " + i + " has fallen to " + 600-Math.round((5*currentTime/(meteorites[i].time + TIME_TO_FALL))))
+				if(meteorites[i].isFalling === false){
+					isFalling = true;
+					addTrailToMeteor(meteorites[i]);
+				}
 			} // If the meteorite has crashed
 			else{
 				indexDoneFalling++;
 				meteorites[i].meteorObject.position = mapLatLongToVector3(meteorites[i].lat, meteorites[i].lng, 600, 2);
 				triggerShockwave(meteorites[i]);
+				meteorites[i].isFalling = false;	//TODO : Hide trail
 				logToUserConsole(meteorites[i].data);
 				//console.log("meteorite" + i + "has landed")
 			}
@@ -319,13 +385,11 @@ var NB_SHOCKWAVE_MESHES = Math.ceil(SHOCKWAVE_DURATION/SHOOT_INTERVAL)
 var availableShockwaveMesh = 0;
 
 function triggerShockwave(meteorite){
-
 	shockwaves[availableShockwaveMesh].mesh.position = mapLatLongToVector3(meteorite.lat, meteorite.lng, 600, 3);
 	shockwaves[availableShockwaveMesh].done_animating = false;
 	shockwaves[availableShockwaveMesh].scale = 2*meteorite.scale;
 	shockwaves[availableShockwaveMesh].time = meteorite.time + TIME_TO_FALL;
 	availableShockwaveMesh = (availableShockwaveMesh +1)%NB_SHOCKWAVE_MESHES;
-
 }
 
 function updateShockwaves(){
@@ -344,6 +408,75 @@ function updateShockwaves(){
 	}
 }
 
+var NB_TRAIL_MESHES = Math.ceil(TIME_TO_FALL/SHOOT_INTERVAL)
+var availableTrailMesh = 0;
+var TRAIL_WIDTH = 20;
+
+function addTrailToMeteor(meteorite){
+//TODO : keep current pos in meteorite ?
+
+	trails[availableTrailMesh].mesh.position = mapLatLongToVector3(meteorite.lat, meteorite.lng, 600, 
+					600-Math.round((595*(currentTime-meteorite.time)/TIME_TO_FALL)) + TRAIL_WIDTH);
+	trails[availableTrailMesh].done_animating = false;
+	trails[availableTrailMesh].time = meteorite.time;
+	availableTrailMesh = (availableTrailMesh + 1)%NB_TRAIL_MESHES;
+}
+
+function updateTrails(delta){
+	for(var i = 0; i< trails.length; i++){
+		if(trails[i].done_animating === false){
+			//If not done animating
+			if(currentTime < trails[i].time +TIME_TO_FALL){
+				trails[i].mesh.visible = true;
+				trails[i].mesh.lookAt(camera.position);
+				trails[i].animator.update(1000 * delta);
+			} else{
+				trails[i].mesh.visible = false;
+				trails[i].done_animating = true;
+			}
+		}
+	}
+}
+
+function TextureAnimator(texture, tilesHoriz, tilesVert, numTiles, tileDispDuration) 
+{	
+	// note: texture passed by reference, will be updated by the update function.
+		
+	this.tilesHorizontal = tilesHoriz;
+	this.tilesVertical = tilesVert;
+	// how many images does this spritesheet contain?
+	//  usually equals tilesHoriz * tilesVert, but not necessarily,
+	//  if there at blank tiles at the bottom of the spritesheet. 
+	this.numberOfTiles = numTiles;
+	texture.wrapS = texture.wrapT = THREE.RepeatWrapping; 
+	texture.repeat.set( 1 / this.tilesHorizontal, 1 / this.tilesVertical );
+
+	// how long should each image be displayed?
+	this.tileDisplayDuration = tileDispDuration;
+
+	// how long has the current image been displayed?
+	this.currentDisplayTime = 0;
+
+	// which image is currently being displayed?
+	this.currentTile = 0;
+		
+	this.update = function( milliSec )
+	{
+		this.currentDisplayTime += milliSec;
+		while (this.currentDisplayTime > this.tileDisplayDuration)
+		{
+			this.currentDisplayTime -= this.tileDisplayDuration;
+			this.currentTile++;
+			if (this.currentTile == this.numberOfTiles)
+				this.currentTile = 0;
+			var currentColumn = this.currentTile % this.tilesHorizontal;
+			texture.offset.x = currentColumn / this.tilesHorizontal;
+			var currentRow = Math.floor( this.currentTile / this.tilesHorizontal );
+			texture.offset.y = currentRow / this.tilesVertical;
+		}
+	};
+}
+
 var compactedGeometry;
 var compactedMesh;
 var lastIndexMerged = 0;
@@ -356,7 +489,6 @@ function compactGeometry(keepOldMeteors){
 		return;
 	}
 	// the geometry that will contain all our crashed meteorites
-	//compactedGeometry = new THREE.Geometry();
 	for(var i=lastIndexMerged; i<= (Math.round(indexDoneFalling*PERCENTAGE_TO_COMPACT)); i++){
 		if(keepOldMeteors){
 			//TODO : compact ?
@@ -376,7 +508,7 @@ function compactGeometry(keepOldMeteors){
 		scene.add(compactedMesh);
 	}
 	
-	lastIndexMerged = indexDoneFalling;
+	lastIndexMerged = (Math.round(indexDoneFalling*PERCENTAGE_TO_COMPACT);
 	
 	console.log("Compacted " + lastIndexMerged + " meteorites meshes");
 }
@@ -397,15 +529,6 @@ var lastFrameTime = date.getTime();
 var prepare_next_chunk_bool;
 
 function update() {
-	/* Earth revolves
-	earth.rotation.y += 0.005;
-	clouds.rotation.y += 0.005;
-	if(total){
-		total.rotation.y += 0.005;
-	}
-	//TODO : move all the meteors
-	*/
-	
 	date = new Date();
 	var delta = date.getTime() - lastFrameTime;
 	lastFrameTime = date.getTime();
@@ -423,44 +546,25 @@ function update() {
 		}
 		updateMeteors(delta);
 		updateShockwaves();
-	}
-}
-
-function render() {
-    renderer.render(scene, camera);
-}
-
-/** arg1 is a mesh or geometry ?
- ** ephemere -> if true, only one update is needed
- **/
-function updateNeeded(arg1, ephemere){
-	// set the geometry to dynamic
-	// so that it allow updates
-	mesh.geometry.dynamic = true;
-
-	// changes to the vertices
-	mesh.geometry.verticesNeedUpdate = true;
-
-	// changes to the normals
-	mesh.geometry.normalsNeedUpdate = true;
-	
-	if(ephemere){
-		//TODO
+		updateTrails(delta);
 	}
 }
 
 var canUpdateMeteors;
 
-function updateNoLongerNeeded(object){
-	object.geometry.dynamic = false;
-	object.geometry.verticesNeedUpdate = false;
-	object.geometry.normalsNeedUpdate = false;
+function gameLoop(){
+    update();	//This function handles meteor memory release if stop switched to true
+    render();
+	controlOrbit.update();	//orbit controls I guess :)
+	if (closeRequested){
+		destroy();
+	} else{
+		requestAnimationFrame(gameLoop);
+	}
 }
 
-function gameLoop(){
-    update();
-    render();
-	requestAnimationFrame(gameLoop)
+function render() {
+    renderer.render(scene, camera);
 }
 
 // convert the positions from a lat, lon to a position on a sphere.
@@ -475,14 +579,27 @@ function mapLatLongToVector3(lat, lon, radius, heigth) {
 	return new THREE.Vector3(x,y,z);
 }
 
+function destroy(){
+	scene.remove(camera);
+		for(var i=0; i< NB_SHOCKWAVE_MESHES; i++){
+			shockwaves[i].mesh.geometry.dispose();
+			scene.remove(shockwaves[i].mesh)
+		}
+	scene.remove(earth);
+	scene.remove(clouds);
+}
+
 /**************************
 	User related stuff
 	*************************/
 
 var stop = false;
-var play = true;	
+var play = false;	
 
 function playPause(){
+	if(play === false){
+		startAnim();
+	}
 	play = !play;
 }
 
@@ -491,6 +608,7 @@ var chunkToPrepare = 0;
 function stopAnim(){
 	stop = true;
 	chunkToPrepare = 0;
+	//TODO or not ? Set year to start (chunk 0)
 }
 
 function setStartDate(year){
@@ -503,7 +621,7 @@ function startAnim(){
 		return;
 	}
 	prepareChunk(chunkToPrepare);
-	canUpdateMeteors = true;
+	//canUpdateMeteors = true; Done by prepare chunk when it successfully completes
 	play = true;
 }
 
@@ -525,61 +643,112 @@ function logToUserConsole(data){
 	//TODO
 }
 
-var status, earth_status, load_status, parse_status, meteors_status;
+var SVG_STATUS_HEIGHT = 100;
+var earth_status, load_status, parse_status, meteors_status, resources_status, done_status;
 
 function addStatusBars(){
-	status = d3.select("#status").append("svg")
+	var status = d3.select("#loadingBars").append("svg")
 		.attr("width", 200)  
-		.attr("height", HEIGHT)
-	earth_status = d3.select("#status").append("rect")
+		.attr("height", SVG_STATUS_HEIGHT)
+	earth_status = status.append("rect")
 		.attr("x", 0)
-		.attr("y", HEIGHT/2)
+		.attr("y", SVG_STATUS_HEIGHT/2)
 		.attr("width", 20)
 		.attr("height", 0)
-		.attr("fill", function() {
-			return "rgb(30, 30, 200)";
-		})
-	load_status = d3.select("#status").append("rect")
+		.attr("fill", "rgba(30, 30, 200, 1)")
+	resources_status = status.append("rect")
 		.attr("x", 22)
-		.attr("y", HEIGHT/2)
+		.attr("y", SVG_STATUS_HEIGHT/2)
 		.attr("width", 20)
 		.attr("height", 0)
-		.attr("fill", function() {
-			return "rgb(200, 70, 20)";
-		})
-	parse_status = d3.select("#status").append("rect")
+		.attr("fill", "rgba(200, 200, 20, 1)")
+	load_status = status.append("rect")
 		.attr("x", 44)
-		.attr("y", HEIGHT/2)
+		.attr("y", SVG_STATUS_HEIGHT/2)
 		.attr("width", 20)
 		.attr("height", 0)
-		.attr("fill", function() {
-			return "rgb(200, 70, 20)";
-		})
-	meteors_status = d3.select("#status").append("rect")
+		.attr("fill", "rgba(200, 70, 20, 1)")
+	parse_status = status.append("rect")
 		.attr("x", 66)
-		.attr("y", HEIGHT/2)
+		.attr("y", SVG_STATUS_HEIGHT/2)
 		.attr("width", 20)
 		.attr("height", 0)
-		.attr("fill", function() {
-			return "rgb(200, 70, 20)";
-		});
+		.attr("fill", "rgba(20, 200, 20, 1)")
+	meteors_status = status.append("rect")
+		.attr("x", 88)
+		.attr("y", SVG_STATUS_HEIGHT/2)
+		.attr("width", 20)
+		.attr("height", 0)
+		.attr("fill", "rgba(200, 100, 100, 1)");
+}
+
+function addControlButtons(){
+	var controls = d3.select("#controls");
+	controls.append("button")
+		.attr("id", "play")
+		.text("Play")
+		.on("click",function(){ playPause(); })
+	controls.append("button")
+		.attr("id", "pause")
+		.text("Stop")
+		.on("click",function(){ stopAnim(); });
+	controls.append("button")
+		.attr("id", "gotoYear")
+		.text("Goto year :")
+		.on("click",function(){ startAnim(); });
+	controls.append("input")
+		.attr("type", "number")
+		.attr("min", -2500)
+		.attr("max", 2013)
+		.attr("step", 1)
+		.attr("value", 42)
+		.attr("id", "selectedYear")
+	var filter = controls.append("div")
+		.attr("id", "filters")
+	filter.append("button")
+		.attr("id", "filter")
+		.text("Show only meteorites falling in this area :")
+		.on("click", function(){ return;})
+	filter.append("input")
+		.attr("id", "latMin")
+		.attr("placeholder", "Latitude min")
+	filter.append("input")
+		.attr("id", "latMax")
+		.attr("placeholder", "Latitude max")
+	filter.append("input")
+		.attr("id", "lngMin")
+		.attr("placeholder", "Longitude min")
+	filter.append("input")
+		.attr("id", "lngMax")
+		.attr("placeholder", "Longitude max")
 }
 
 function updateStatus(statusName, percentage){
 	var statusBar;
 	switch (statusName){
 		case "load": 
+			d3.select("#done_loading").html("<b>Loading...</b> Loading data !");
 			statusBar = load_status;
 			break;
 		case "parse":
+			d3.select("#done_loading").html("<b>Loading...</b> Parsing data !");
 			statusBar = parse_status;
 			break;
 		case "earth":
+			d3.select("#done_loading").html("<b>Loading...</b> Loading Earth !");
 			statusBar = earth_status;
 			break;
 		case "meteors":
+			d3.select("#done_loading").html("<b>Loading...</b> Loading Meteors !");
 			statusBar = meteors_status;
 			break;
+		case "resources":
+			d3.select("#done_loading").html("<b>Loading...</b> Loading Meshes !");
+			statusBar = resources_status;
+			break;
+		case "done":
+			d3.select("#done_loading").html("<b>Done !</b> Click Play !");
+			return;
 		default:
 			break;
 	}
@@ -587,6 +756,6 @@ function updateStatus(statusName, percentage){
 	statusBar
 		.transition()
 		.duration(1000)
-		.attr("y", HEIGHT/2-amount)
-		.attr("height", amount)
+		.attr("y", SVG_STATUS_HEIGHT/2-amount)
+		.attr("height", amount);
 }

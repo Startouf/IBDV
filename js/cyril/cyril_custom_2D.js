@@ -2,25 +2,27 @@
 
 /*** For Edouard ***/
 
-var whereToAppendHottenessSVG = "#visualization";
+var whereToAppendHottenessSVG = "#visualization";		//showing the data appends the svg in this one
 var RADIUS_BEFORE_ANIM = 100, RADIUS_AFTER_ANIM = 175;
 
 /*
- * If you want to SHOW it : call initHottenessSVG()
- * If you want to remove the SVG, call 
+ * If you want to SHOW it : call showHottenessSVG()
+ * If you want to REMOVE the SVG, call hideHottenessSVG()
+ Html could be loaded from an external file
+ */
 
-
-/**** If you want to change the design of the edge of the circles ***/
+/**** If you want to change the design of the edge of the circles, modify these vars : ***/
 var CIRCLE_BCKG_COLOR = "#666666";
 var CIRCLE_BCKG_ALPHA = 0.0;
 var CIRCLE_STRK_COLOR = "#dddddd";
 var CIRCLE_STRK_ALPHA = 0.5;
 var CIRCLE_STRK_WIDTH = "5px";
+var HIGHLIGHTER_ALPHA = 0.5; 	//The highlighter are the orbs that revolve around a bubble
 
 
 
 /**** Circle showing 2D data with n+1 params **/
-function init() {
+function showHottenessSVG() {
 	initData();
 	setupTooltip();
 	setupHighlighters();
@@ -301,7 +303,7 @@ function setupHighlighters(){
 			.attr("fill", "green")
 			.attr("r", 1)
 			.attr("stroke-opacity", .3)
-			.attr("fill-opacity", 1)
+			.attr("fill-opacity", HIGHLIGHTER_ALPHA)
 	}
 }
 

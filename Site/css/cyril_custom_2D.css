@@ -1,0 +1,38 @@
+circle.inner, circle.outer{
+	cursor : pointer;
+	z-index: 5;
+}
+
+.tooltip {
+	margin: -10px;
+	text-align: center;
+	position: fixed;
+	transition: opacity 0.6s;
+	display: block;
+	line-height: 1;
+	font-weight: bold;
+	padding: 10px;
+	background: rgba(50, 50, 50, 0.8);
+	color: #fff;
+	border: 3px double;
+	z-index: 20;
+}
+
+/* Creates a small triangle extender for the tooltip */
+.tooltip:after {
+  box-sizing: border-box;
+  display: inline;
+  font-size: 10px;
+  width: 100%;
+  line-height: 1;
+  color: rgba(255, 255, 255, 0.8);
+  content: "\25BC";
+  text-align: center;
+}
+
+/* Style northward tooltips differently */
+.tooltip.n:after {
+  margin: -1px 0 0 0;
+  top: 100%;
+  left: 0;
+}

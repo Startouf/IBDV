@@ -10,20 +10,25 @@
 		<script type="text/javascript" src="js/meteorite_parser.js"></script>
 		<script type="text/javascript" src="js/meteorite_visualization.js"></script>
 		
+		<style type="text/css">
+		canvas {
+		    position: fixed;
+		    top: 0;
+		    left: 0;
+		}
+	</style>
 
 	</head>
-	<body>
-		<h1>4D Visualization</h1>
-		
-		<span id="threejs" style="width: 800; height: 600">
-		<!-- Three.js goes here -->
-		</span>
-		<span id="status">
-		</span>
-		
-		<div id="controls">
-			<button id="stop">Stop</button>
-			<button id="start">Start</button>
+	<body>	
+		<div id="4DVisu">
+			<span id="threejs" style="width: 800; height: 600">
+			<!-- Three.js goes here -->
+			</span>
+			<span id="status">
+			</span>
+			<span id="controls">
+				
+			</span>
 		</div>
 		
 		<!-- Big thanks to stemkoski (.github.io/three.js/)!!! -->
