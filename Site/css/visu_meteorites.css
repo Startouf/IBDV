@@ -74,6 +74,18 @@ canvas{
 	text-align: left;
 }
 
+.bouton2:hover {
+	background-color: #C02942; 
+	border: 0px; 
+	Font-family: 'Century Gothic'; 
+	Font-weight: bold;
+	Font-size: 16px; 
+	Color: #FFFFFF; 
+		Padding: 6px 15px 6px 15px;   
+		Border-radius: 10px;
+		margin-right: 15px;
+}
+
 	.bouton2 {
 		background-color: #ECD078; 
 		border: 0px; 

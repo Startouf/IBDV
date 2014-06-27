@@ -23,10 +23,12 @@ var HIGHLIGHTER_ALPHA = 0.5; 	//The highlighter are the orbs that revolve around
 
 /**** Circle showing 2D data with n+1 params **/
 function showHottenessSVG() {
-	initHottenessData();
-	setupTooltip();
-	setupHighlighters();
-	addKey();
+	$(whereToAppendHottenessSVG).load("hottness_descr.html", function(){
+		initHottenessData();
+		setupTooltip();
+		setupHighlighters();
+		addKey();
+	})
 }
 
 var n = 3;
@@ -55,7 +57,6 @@ function randomiseDataAndSort(){
 }
 
 function initHottenessData(){
-
 	//d3.select("article #visualization").append("h2").text("Displaying data using basic numbers");
 		
 	ideas = ["A new baby-foot", "Some free access computers in the common rooms", "A wifi hotspot in the common rooms", "A touchpad", "Free tea at the bar", 
@@ -251,7 +252,7 @@ function hideHottenessSVG(){
  **************************/
 var tooltip;
 var tooltip_w = 200;
-var tooltip_h = 270;
+var tooltip_h = 210;
 
 function setupTooltip(){
 	tooltip = d3.select(whereToAppendHottenessSVG).append("div")

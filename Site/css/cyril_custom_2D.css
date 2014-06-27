@@ -3,6 +3,10 @@ circle.inner, circle.outer{
 	z-index: 5;
 }
 
+.descr_hottness{
+	text-align: center;
+}
+
 .tooltip {
 	margin: -10px;
 	text-align: center;
@@ -11,6 +15,7 @@ circle.inner, circle.outer{
 	display: block;
 	line-height: 1;
 	font-weight: bold;
+	font-size: 16px;
 	padding: 10px;
 	background: rgba(50, 50, 50, 0.8);
 	color: #fff;

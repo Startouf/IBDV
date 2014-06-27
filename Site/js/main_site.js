@@ -26,6 +26,7 @@ function click2D() {
 	
 function click3D() {
 	hidethings();
+	document.getElementsByTagName("h1")[0].innerHTML="3D Data Visualization";
 	load4DVisu("#content")
 }
 
@@ -288,7 +289,11 @@ function showScatterplot() {
 	.style("Font-size","28px")
 	.style("color","#C02942");
 
-	d3.select("#content").append("p").attr("id", "titleScatterplot2").style("text-align","center").text("(gives a visualization of works progression in an animation production studio; thus, animators can see which projects are late on schedule and need their help)").style("font-size","1.2vw");
+	d3.select("#content").append("p")
+		.attr("id", "titleScatterplot2")
+		.style("text-align","center")
+		.text("Gives a visualization of works progression in an animation production studio; thus, animators can see which projects are late on schedule and need their help")
+		.style("font-size","1.2vw");
 	    
 
 	for (var i = 0; i<10; i++){

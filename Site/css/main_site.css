@@ -126,6 +126,13 @@ div.bar {
 	text-align:center;
 }
 
+.column_button li{
+	text-align: left;
+	float:left;
+	width: 25%;
+	text-align:center;
+}
+
 
 
 .bouton:hover {
@@ -140,7 +147,7 @@ div.bar {
 }
 
 li {
-	font-size: 0.8vw;
+	font-size: 18px;
 	color: #999999;
 }
 

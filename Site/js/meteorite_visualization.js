@@ -337,6 +337,7 @@ function prepareChunk(index){
 	if(numChunk === 0 || (index !== undefined)){
 		currentTime = (index ? index : 0)*SHOOT_INTERVAL + TIME_TO_FALL;
 		canUpdateMeteors = true;
+		indexDoneFalling = index ? (index*chunkSize) : 0;
 	}
 	lastPreparedChunk = numChunk;
 	numChunk++;
@@ -606,6 +607,7 @@ function playPause(){
 }
 
 var chunkToPrepare = 0;
+
 	
 function stopAnim(){
 	stop = true;
@@ -613,8 +615,10 @@ function stopAnim(){
 	//TODO or not ? Set year to start (chunk 0)
 }
 
-function setStartDate(year){
-	chunkToPrepare = findChunk(year);
+function setStartDate(){
+	stopAnim();
+	var year = d3.select("#selectedYear").attr("value")
+	chunkToPrepare = findChunk(Number(year));
 }
 
 function startAnim(){
@@ -631,9 +635,10 @@ function findChunk(year){
 	var found = false;
 	var i=0;
 	while(!found){
-		if(dataset[i].year <= year){
+		if(dataset[i].year >= year){
 			return Math.floor(i/chunkSize);
 		}
+		i++;
 	}
 }
 
@@ -751,7 +756,7 @@ function addControlButtons(){
 		.attr("id", "gotoYear")
 		.classed("bouton2", true)
 		.text("Goto year :")
-		.on("click",function(){ startAnim(); });
+		.on("click",function(){ setStartDate(); });
 	controls.append("input")
 		.attr("type", "number")
 		.attr("min", -2500)
@@ -762,10 +767,9 @@ function addControlButtons(){
 	var filter = controls.append("div")
 		.attr("id", "filters")
 	filter.append("button")
-		.attr("id", "filter")
+		.attr("id", "yearFilter")
 		.text("Show only meteorites falling in this area :")
 		.classed("bouton2", true)
-		.on("click", function(){ return;})
 	filter.append("input")
 		.attr("id", "latMin")
 		.attr("value", -90)
