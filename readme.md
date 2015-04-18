@@ -1,12 +1,12 @@
 # In-Browser Data Visualization
 
-## What it is about ?
+## What is it about ?
 
 Two intensive weeks of work to discover and invent various techniques to represent data in a fashionable way in modern web browsers.
 
 ## Start the demo
 
-Because it's designed to be ran with web browsers, just run Site/index.html with your favourite web browser.
+Because it's designed to be run within web browsers, just open Site/index.html with your favourite web browser.
 
 However, if you want to run the 3D/4D visualisation, you need a browser that can run WebGL. Google Chrome has displayed very at the time we coded it, but new Firefox versions seem to also perform extremely well
 
@@ -16,7 +16,14 @@ However, if you want to run the 3D/4D visualisation, you need a browser that can
 
 Some classic data representations were coded using the library d3.js
 
+*  A classic Bar Chart
+*  A classic Pie Chart
+*  A more interesting Scatterplot
+*  A more interesting "hottness" plot
+
 ### An innovative 4D Data visualization
+
+![Meteorite Visualization screenshot](screenshot_meteorites.jpg?raw=true "Screenshot of the meteorites 4D Visualization")
 
 A more innovative approach was used to create a 4D data-visualization of meteorites falling on Earth, from the official database of crashes available on the web. 
 
