@@ -6,6 +6,8 @@ Two intensive weeks of work to discover and invent various techniques to represe
 
 ## Start the demo
 
+You can directly view the website [with RawGit preview](https://cdn.rawgit.com/Startouf/IBDV/master/Site/index.html)
+
 Because it's designed to be run within web browsers, just open Site/index.html with your favourite web browser.
 
 However, if you want to run the 3D/4D visualisation, you need a browser that can run WebGL. Google Chrome has displayed very at the time we coded it, but new Firefox versions seem to also perform extremely well

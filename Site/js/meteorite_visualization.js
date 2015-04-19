@@ -788,6 +788,8 @@ function addControlButtons(){
 		.attr("placeholder", "Longitude max")
 }
 
+var bars_complete = 0;
+
 function updateStatus(statusName, percentage){
 	var statusBar;
 	switch (statusName){
@@ -811,11 +813,11 @@ function updateStatus(statusName, percentage){
 			d3.select("#done_loading").html("<b>Loading...</b> Loading Meshes !");
 			statusBar = resources_status;
 			break;
-		case "done":
-			d3.select("#done_loading").html("<b>Done !</b> Click Play !");
-			return;
 		default:
 			break;
+	}
+	if(percentage === 100){
+		bars_complete++;
 	}
 	var amount = Math.round(percentage);
 	statusBar
@@ -823,4 +825,7 @@ function updateStatus(statusName, percentage){
 		.duration(1000)
 		.attr("y", SVG_STATUS_HEIGHT/2-amount)
 		.attr("height", amount);
+	if(bars_complete === 3){
+		d3.select("#done_loading").html("<b>Done !</b> Click Play !");
+	}
 }
