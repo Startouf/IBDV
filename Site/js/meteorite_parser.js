@@ -35,6 +35,7 @@ function parseMeteorsData(callback2, statusbarLoaded, statusbarParse) {
 				updateStatus("parse", (i/data.length)*100);
 			}
 		})
+		updateStatus("parse", 100);
 		callback2();
 	})
 	.on("progress", function(event){

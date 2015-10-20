@@ -63,7 +63,6 @@ function initThreejs() {
 			loadResources();
 			addData();
 			setTimeout(function(){
-				updateStatus("done");
 				gameLoop();
 			}, 1000)
 		},1000)
@@ -789,6 +788,7 @@ function addControlButtons(){
 }
 
 var bars_complete = 0;
+var TOTAL_BARS = 4;
 
 function updateStatus(statusName, percentage){
 	var statusBar;
@@ -804,10 +804,6 @@ function updateStatus(statusName, percentage){
 		case "earth":
 			d3.select("#done_loading").html("<b>Loading...</b> Loading Earth !");
 			statusBar = earth_status;
-			break;
-		case "meteors":
-			d3.select("#done_loading").html("<b>Loading...</b> Loading Meteors !");
-			statusBar = meteors_status;
 			break;
 		case "resources":
 			d3.select("#done_loading").html("<b>Loading...</b> Loading Meshes !");
@@ -825,7 +821,7 @@ function updateStatus(statusName, percentage){
 		.duration(1000)
 		.attr("y", SVG_STATUS_HEIGHT/2-amount)
 		.attr("height", amount);
-	if(bars_complete === 3){
+	if(bars_complete === TOTAL_BARS){
 		d3.select("#done_loading").html("<b>Done !</b> Click Play !");
 	}
 }
